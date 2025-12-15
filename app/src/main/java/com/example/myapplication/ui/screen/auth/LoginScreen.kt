@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.myapplication.data.repository.AuthViewModel
 import com.example.myapplication.ui.common.UiState
@@ -16,10 +17,11 @@ import com.example.myapplication.ui.common.UiState
 @Composable
 fun LoginScreen(
     navController: NavController,
-    viewModel: AuthViewModel
+    viewModel: AuthViewModel = viewModel()
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+
     val context = LocalContext.current
     val loginState by viewModel.loginState.collectAsState()
 
@@ -30,7 +32,11 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(text = "Welcome Back!", style = MaterialTheme.typography.headlineMedium)
+
+        Text(
+            text = "Welcome Back!",
+            style = MaterialTheme.typography.headlineMedium
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -54,7 +60,9 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
-            onClick = { viewModel.login(email, password) },
+            onClick = {
+                viewModel.login(email, password)
+            },
             modifier = Modifier.fillMaxWidth(),
             enabled = email.isNotEmpty() && password.isNotEmpty()
         ) {
@@ -63,28 +71,41 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        TextButton(onClick = { navController.navigate("register") }) {
+        TextButton(
+            onClick = {
+                navController.navigate("register")
+            }
+        ) {
             Text("Belum punya akun? Register")
         }
 
-        // Handle State
+        // Handle UI State
         when (val state = loginState) {
             is UiState.Loading -> {
-                // Tampilkan loading spinner jika sedang diproses (opsional)
+                CircularProgressIndicator()
             }
+
             is UiState.Success -> {
                 LaunchedEffect(Unit) {
-                    Toast.makeText(context, "Login Berhasil!", Toast.LENGTH_SHORT).show()
+                    Toast
+                        .makeText(context, "Login Berhasil!", Toast.LENGTH_SHORT)
+                        .show()
+
                     navController.navigate("home") {
                         popUpTo("login") { inclusive = true }
                     }
                 }
             }
+
             is UiState.Error -> {
                 LaunchedEffect(state) {
-                    Toast.makeText(context, state.errorMessage, Toast.LENGTH_SHORT).show()
+                    Toast
+                        .makeText(context, state.errorMessage, Toast.LENGTH_SHORT)
+                        .show()
                 }
             }
+
+            else -> {}
         }
     }
 }

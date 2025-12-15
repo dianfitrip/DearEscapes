@@ -6,7 +6,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-// --- PENTING: Import semua halaman screen di sini ---
+// Import semua halaman yang sudah dibuat
 import com.example.myapplication.ui.screen.add.AddScreen
 import com.example.myapplication.ui.screen.auth.LoginScreen
 import com.example.myapplication.ui.screen.auth.RegisterScreen
@@ -17,13 +17,15 @@ import com.example.myapplication.ui.screen.statistic.StatisticScreen
 
 @Composable
 fun NavGraph(
-    navController: NavHostController // <-- Ini deklarasi navController agar tidak merah
+    navController: NavHostController
 ) {
-    // NavHost adalah wadah utama navigasi
+    // NavHost adalah WADAH UTAMA. Tanpa ini, composable(...) akan merah.
     NavHost(
         navController = navController,
-        startDestination = "login" // Halaman pertama yang muncul
+        startDestination = "login" // Halaman pertama kali muncul
     ) {
+        // --- DAFTAR HALAMAN (RUTE) ---
+
         // 1. Login
         composable("login") {
             LoginScreen(navController = navController)
@@ -39,17 +41,17 @@ fun NavGraph(
             HomeScreen(navController = navController)
         }
 
-        // 4. Add (Tambah Data)
+        // 4. Tambah Data
         composable("add") {
             AddScreen(navController = navController)
         }
 
-        // 5. Statistic
+        // 5. Statistik
         composable("statistic") {
             StatisticScreen(navController = navController)
         }
 
-        // 6. Detail (Menerima ID)
+        // 6. Detail (Menerima ID dari Home)
         composable(
             route = "detail/{entertainmentId}",
             arguments = listOf(navArgument("entertainmentId") { type = NavType.IntType })
@@ -58,7 +60,7 @@ fun NavGraph(
             DetailScreen(entertainmentId = id, navController = navController)
         }
 
-        // 7. Edit (Menerima ID)
+        // 7. Edit (Menerima ID dari Detail)
         composable(
             route = "edit/{entertainmentId}",
             arguments = listOf(navArgument("entertainmentId") { type = NavType.IntType })
