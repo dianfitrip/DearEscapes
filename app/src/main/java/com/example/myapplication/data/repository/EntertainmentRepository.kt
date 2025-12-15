@@ -1,54 +1,57 @@
 package com.example.myapplication.data.repository
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.example.myapplication.data.repository.AuthRepository
-import com.example.myapplication.ui.common.UiState
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
-import retrofit2.HttpException
+import com.example.myapplication.data.api.ApiService
+import com.example.myapplication.data.model.Entertainment
+import com.example.myapplication.data.model.LoginResponse
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 
-class AuthViewModel(private val repository: AuthRepository) : ViewModel() {
+class EntertainmentRepository(private val apiService: ApiService) {
 
-    private val _loginState = MutableStateFlow<UiState<Any>>(UiState.Loading)
-    val loginState: StateFlow<UiState<Any>> = _loginState
-
-    private val _registerState = MutableStateFlow<UiState<Any>>(UiState.Loading)
-    val registerState: StateFlow<UiState<Any>> = _registerState
-
-    fun login(email: String, password: String) {
-        viewModelScope.launch {
-            _loginState.value = UiState.Loading
-            try {
-                val response = repository.login(email, password)
-                if (!response.error) {
-                    // Simpan token di sini jika perlu (User Preference)
-                    _loginState.value = UiState.Success(response)
-                } else {
-                    _loginState.value = UiState.Error(response.message)
-                }
-            } catch (e: HttpException) {
-                _loginState.value = UiState.Error(e.message ?: "Terjadi kesalahan server")
-            } catch (e: Exception) {
-                _loginState.value = UiState.Error(e.message ?: "Terjadi kesalahan jaringan")
-            }
-        }
+    // 1. Fungsi untuk mengambil daftar hiburan (GET)
+    suspend fun getEntertainments(): List<Entertainment> {
+        return apiService.getEntertainments()
     }
 
-    fun register(name: String, email: String, password: String) {
-        viewModelScope.launch {
-            _registerState.value = UiState.Loading
-            try {
-                val response = repository.register(name, email, password)
-                if (!response.error) {
-                    _registerState.value = UiState.Success(response)
-                } else {
-                    _registerState.value = UiState.Error(response.message)
-                }
-            } catch (e: Exception) {
-                _registerState.value = UiState.Error(e.message ?: "Gagal Register")
+    // 2. Fungsi untuk menambah data (POST)
+    suspend fun addEntertainment(
+        title: RequestBody,
+        description: RequestBody,
+        genre: RequestBody,
+        category: RequestBody,
+        status: RequestBody,
+        rating: RequestBody,
+        photo: MultipartBody.Part?
+    ): LoginResponse {
+        return apiService.addEntertainment(title, description, genre, category, status, rating, photo)
+    }
+
+    // 3. Pola Singleton (Cukup SATU kali saja)
+    companion object {
+        @Volatile
+        private var instance: EntertainmentRepository? = null
+
+        fun getInstance(apiService: ApiService): EntertainmentRepository =
+            instance ?: synchronized(this) {
+                instance ?: EntertainmentRepository(apiService).also { instance = it }
             }
-        }
+    }
+
+    // Fungsi Ambil Detail
+    suspend fun getEntertainmentDetail(id: Int): Entertainment {
+        return apiService.getEntertainmentDetail(id)
+    }
+
+    suspend fun updateEntertainment(
+        id: Int,
+        title: RequestBody,
+        description: RequestBody,
+        genre: RequestBody,
+        category: RequestBody,
+        status: RequestBody,
+        rating: RequestBody,
+        photo: MultipartBody.Part?
+    ): LoginResponse {
+        return apiService.updateEntertainment(id, title, description, genre, category, status, rating, photo)
     }
 }

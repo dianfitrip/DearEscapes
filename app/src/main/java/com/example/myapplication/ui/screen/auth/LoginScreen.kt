@@ -10,6 +10,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.myapplication.data.repository.AuthViewModel
 import com.example.myapplication.ui.common.UiState
 
 @Composable

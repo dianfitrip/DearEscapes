@@ -54,6 +54,28 @@ dependencies {
     implementation(libs.androidx.compose.material3)
 
 
+    //Networking (Connect ke API/MySQL)
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.logging.interceptor)
+
+    //Gambar (Load foto sampul)
+    implementation(libs.coil.compose)
+
+    //Room (Database Lokal - Opsional jika pakai MySQL murni, tapi bagus untuk cache)
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
+
+    // Testing
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    debugImplementation(libs.androidx.compose.ui.tooling)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
+
     // Icon Material Extended
     implementation(libs.compose.icons)
 
