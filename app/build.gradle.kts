@@ -2,6 +2,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+
+    // Tambahan plugin KSP
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -49,6 +52,31 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+
+
+    // Icon Material Extended
+    implementation(libs.compose.icons)
+
+    // Room
+    implementation(libs.bundles.room)
+    ksp(libs.room.compiler)
+
+    // ViewModel & Lifecycle
+    implementation(libs.lifecycle.viewmodel.compose)
+    implementation(libs.lifecycle.runtime.compose)
+
+    // Navigasi
+    implementation(libs.navigation.compose)
+
+    // Dependencies standar lainnya (biasanya sudah ada otomatis)
+    implementation(platform("androidx.compose:compose-bom:2024.04.01"))
+    implementation("androidx.activity:activity-compose:1.9.0")
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.ui:ui-graphics")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.compose.material3:material3")
+
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
