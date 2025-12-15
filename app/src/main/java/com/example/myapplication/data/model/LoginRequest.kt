@@ -1,7 +1,6 @@
 package com.example.myapplication.data.model
 
-data class RegisterRequest(
-    val name: String,
+data class LoginRequest(
     val email: String,
     val password: String
 )
