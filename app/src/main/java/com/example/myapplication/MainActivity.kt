@@ -10,22 +10,20 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.example.myapplication.ui.navigation.NavGraph
 import com.example.myapplication.ui.theme.MyApplicationTheme
-//import com.example.myapplication.ui.theme. // Sesuaikan dengan nama tema Anda
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            // Gunakan nama Theme yang sesuai (biasanya MyApplicationTheme atau DearEscapesTheme)
             MyApplicationTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    // Buat pengontrol navigasi
+                    // Membuat NavController
                     val navController = rememberNavController()
 
-                    // Panggil NavGraph yang sudah kita buat
+                    // Memanggil NavGraph yang sudah mengatur rute halaman
                     NavGraph(navController = navController)
                 }
             }

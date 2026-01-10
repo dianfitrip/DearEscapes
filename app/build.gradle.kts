@@ -62,9 +62,11 @@ dependencies {
     //Gambar (Load foto sampul)
     implementation(libs.coil.compose)
 
+
     //Room (Database Lokal - Opsional jika pakai MySQL murni, tapi bagus untuk cache)
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
+    implementation(libs.androidx.compose.foundation.layout)
     ksp(libs.room.compiler)
 
     // Testing
@@ -97,6 +99,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.material:material-icons-extended:1.6.0")
 
 
     testImplementation(libs.junit)
