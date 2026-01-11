@@ -38,18 +38,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
-import com.example.myapplication.ui.view.home.CottonCandyBlue
+import com.example.myapplication.ui.theme.CottonCandyBlue // Pastikan import warna sesuai tema kamu
 import com.example.myapplication.ui.viewmodel.DetailEntri
 import com.example.myapplication.ui.viewmodel.EntryUiState
 import com.example.myapplication.ui.viewmodel.EntryViewModel
+import com.example.myapplication.ui.viewmodel.PenyediaViewModel
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HalamanEntry(
     navigateBack: () -> Unit,
-    viewModel: EntryViewModel = viewModel()
+    // Gunakan Factory PenyediaViewModel
+    viewModel: EntryViewModel = viewModel(factory = PenyediaViewModel.Factory)
 ) {
+    // 1. Ambil Context di sini (aman untuk Composable)
+    val context = LocalContext.current
+
     val coroutineScope = rememberCoroutineScope()
     val scrollState = rememberScrollState() // State untuk scroll
 
@@ -97,9 +102,11 @@ fun HalamanEntry(
                         entryUiState = viewModel.uiState,
                         onValueChange = viewModel::updateUiState,
                         onSaveClick = {
-                            coroutineScope.launch {
-                                viewModel.saveEntry(navigateBack)
-                            }
+                            // --- BAGIAN YANG DIMODIFIKASI ---
+                            // Kita tidak perlu coroutineScope.launch di sini lagi
+                            // karena EntryViewModel.saveEntry sudah menggunakan viewModelScope.launch
+                            viewModel.saveEntry(context, navigateBack)
+                            // --------------------------------
                         }
                     )
                 }
@@ -139,7 +146,7 @@ fun EntryBody(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        // Opsi 1: Watch (Dibungkus Box weight 1f agar bagi rata)
+        // Opsi 1: Watch
         Box(modifier = Modifier.weight(1f)) {
             CategoryChip(
                 text = "Watch",
@@ -149,7 +156,7 @@ fun EntryBody(
             )
         }
 
-        // Opsi 2: Read (Dibungkus Box weight 1f agar bagi rata)
+        // Opsi 2: Read
         Box(modifier = Modifier.weight(1f)) {
             CategoryChip(
                 text = "Read",
@@ -195,7 +202,7 @@ fun EntryBody(
         onRatingChanged = { onValueChange(detail.copy(rating = it.toString())) }
     )
 
-    // 7. Status (Update: 4 Pilihan sesuai Database)
+    // 7. Status
     Text("Status", color = CottonCandyBlue, fontWeight = FontWeight.Bold, fontSize = 14.sp)
 
     // Baris 1: Planned & In Progress

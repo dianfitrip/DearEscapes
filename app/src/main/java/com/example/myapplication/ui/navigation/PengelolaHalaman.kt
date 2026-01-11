@@ -57,6 +57,14 @@ object DestinasiDetail : DestinasiNavigasi {
     val routeWithArg = "$route/{$idArg}"
 }
 
+// Tambahan untuk Halaman Update/Edit
+object DestinasiUpdate : DestinasiNavigasi {
+    override val route = "update_hiburan"
+    override val titleRes = "Edit Hiburan"
+    const val idArg = "id_update"
+    val routeWithArg = "$route/{$idArg}"
+}
+
 // --- 2. PENGELOLA NAVIGASI (NAVGRAPH) ---
 
 @Composable
@@ -116,7 +124,7 @@ fun NavGraph(
             )
         }
 
-        // --- HALAMAN ENTRY (SUDAH DIPERBARUI) ---
+        // --- HALAMAN ENTRY ---
         composable(route = DestinasiEntry.route) {
             HalamanEntry(
                 navigateBack = {
@@ -126,22 +134,39 @@ fun NavGraph(
             )
         }
 
-        // --- HALAMAN DETAIL (Placeholder / Persiapan) ---
+        // --- HALAMAN DETAIL ---
         composable(
             route = DestinasiDetail.routeWithArg,
             arguments = listOf(navArgument(DestinasiDetail.idArg) {
                 type = NavType.IntType
             })
         ) { backStackEntry ->
-            val id = backStackEntry.arguments?.getInt(DestinasiDetail.idArg)
+            // Ambil ID dari argumen navigasi (default 0 jika error)
+            val id = backStackEntry.arguments?.getInt(DestinasiDetail.idArg) ?: 0
 
-            // PERBAIKAN: Gunakan 'Box' dari foundation, bukan material3
-            androidx.compose.foundation.layout.Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = androidx.compose.ui.Alignment.Center
-            ) {
-                androidx.compose.material3.Text("Halaman Detail ID: $id (Belum Dibuat)")
-            }
+            // Panggil Halaman Detail yang sesungguhnya
+            com.example.myapplication.ui.view.detail.HalamanDetail(
+                id = id,
+                navigateBack = { navController.popBackStack() },
+                // MODIFIKASI: Tambahkan navigasi ke Halaman Update
+                navigateToEdit = { editId ->
+                    navController.navigate("${DestinasiUpdate.route}/$editId")
+                }
+            )
+        }
+
+        // --- HALAMAN UPDATE / EDIT ---
+        composable(
+            route = DestinasiUpdate.routeWithArg,
+            arguments = listOf(navArgument(DestinasiUpdate.idArg) {
+                type = NavType.IntType
+            })
+        ) { backStackEntry ->
+            val id = backStackEntry.arguments?.getInt(DestinasiUpdate.idArg) ?: 0
+            com.example.myapplication.ui.view.entry.HalamanUpdate(
+                id = id,
+                navigateBack = { navController.popBackStack() }
+            )
         }
     }
 }

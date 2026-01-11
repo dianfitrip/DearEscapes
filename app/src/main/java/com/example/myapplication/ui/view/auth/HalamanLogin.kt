@@ -23,15 +23,15 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myapplication.ui.theme.CottonCandyBlue
 import com.example.myapplication.ui.theme.SoftBlueInput
-// --- PERBAIKAN DI SINI ---
 import com.example.myapplication.ui.viewmodel.LoginViewModel
-// -------------------------
+import com.example.myapplication.ui.viewmodel.PenyediaViewModel // 1. Penting: Import Factory Provider
 
 @Composable
 fun HalamanLogin(
     onRegisterClick: () -> Unit,
     onLoginSuccess: () -> Unit,
-    viewModel: LoginViewModel = viewModel()
+    // 2. Gunakan Factory agar UserPreferences ter-inject otomatis
+    viewModel: LoginViewModel = viewModel(factory = PenyediaViewModel.Factory)
 ) {
     val context = LocalContext.current
 
@@ -43,10 +43,11 @@ fun HalamanLogin(
     // Observe Status
     val loginStatus = viewModel.loginStatus
 
+    // 3. Logic Toast (Feedback UI)
     LaunchedEffect(loginStatus) {
         if (loginStatus.contains("Berhasil")) {
             Toast.makeText(context, loginStatus, Toast.LENGTH_SHORT).show()
-            onLoginSuccess()
+            // Note: Navigasi dipindahkan ke tombol agar lebih pasti urutannya
         } else if (loginStatus.contains("Gagal") || loginStatus.contains("Error")) {
             Toast.makeText(context, loginStatus, Toast.LENGTH_SHORT).show()
         }
@@ -121,7 +122,17 @@ fun HalamanLogin(
 
         // --- TOMBOL LOGIN ---
         Button(
-            onClick = { viewModel.login(email, password) },
+            onClick = {
+                // 4. Panggil Login dengan 3 Parameter (email, password, callback sukses)
+                viewModel.login(
+                    email = email,
+                    passInput = password,
+                    onSuccess = {
+                        // Navigasi ini hanya jalan jika session User ID sudah berhasil disimpan di ViewModel
+                        onLoginSuccess()
+                    }
+                )
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),

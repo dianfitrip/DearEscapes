@@ -7,13 +7,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.data.apiservice.RetrofitClient
 import com.example.myapplication.data.model.LoginRequest
+import com.example.myapplication.data.repository.UserPreferences
 import kotlinx.coroutines.launch
 
-class LoginViewModel : ViewModel() {
+// Constructor menerima UserPreferences
+class LoginViewModel(private val userPreferences: UserPreferences) : ViewModel() {
 
     var loginStatus by mutableStateOf("")
 
-    fun login(email: String, passInput: String) { // Saya ganti nama param biar tidak bingung
+    // Fungsi login menerima callback onSuccess
+    fun login(email: String, passInput: String, onSuccess: () -> Unit) {
 
         // 1. Cek input kosong
         if (email.isEmpty() || passInput.isEmpty()) {
@@ -22,7 +25,7 @@ class LoginViewModel : ViewModel() {
         }
 
         // 2. Cek Panjang Password
-        if (passInput.length != 6) { // Pastikan ini sesuai aturan backendmu
+        if (passInput.length != 6) {
             loginStatus = "Gagal: panjang password harus 6"
             return
         }
@@ -31,28 +34,31 @@ class LoginViewModel : ViewModel() {
             try {
                 loginStatus = "Loading..."
 
-                // PERBAIKAN DI SINI:
-                // Gunakan parameter 'password' sesuai perubahan di LoginRequest tadi
                 val request = LoginRequest(email = email, password = passInput)
-
                 val response = RetrofitClient.instance.loginUser(request)
 
                 if (response.isSuccessful) {
-                    // response.body() bisa null, gunakan safe call
                     val responseBody = response.body()
                     if (responseBody != null && responseBody.success) {
                         val user = responseBody.data
-                        loginStatus = "Berhasil: Selamat datang ${user?.username}"
+
+                        if (user != null) {
+                            // --- MODIFIKASI: MENYIMPAN ID DAN USERNAME ---
+                            // Kita panggil saveSession dengan 2 parameter sesuai update UserPreferences
+                            userPreferences.saveSession(user.id, user.username)
+
+                            loginStatus = "Berhasil: Selamat datang ${user.username}"
+
+                            // 3. Panggil callback sukses agar UI pindah halaman
+                            onSuccess()
+                        }
                     } else {
-                        // Backend merespons tapi success = false
                         loginStatus = "Gagal: Email atau Password Salah"
                     }
                 } else {
-                    // Error HTTP (400, 401, 500)
                     loginStatus = "Gagal: Email atau Password Salah"
                 }
             } catch (e: Exception) {
-                // Error Jaringan / Server Mati
                 loginStatus = "Error: ${e.message}"
             }
         }

@@ -1,68 +1,109 @@
 package com.example.myapplication.ui.viewmodel
 
+import android.content.Context
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.myapplication.data.apiservice.RetrofitClient
 import com.example.myapplication.data.model.EntriHiburan
+import com.example.myapplication.data.repository.EntriRepository
+import com.example.myapplication.data.repository.UserPreferences
+import com.example.myapplication.utils.FileUtils // Pastikan FileUtils sudah dibuat di package utils
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.io.File
 
-class EntryViewModel : ViewModel() {
+class EntryViewModel(
+    private val repository: EntriRepository,
+    private val userPreferences: UserPreferences
+) : ViewModel() {
+
     var uiState by mutableStateOf(EntryUiState())
         private set
 
-    // Fungsi untuk mengubah isi form saat user mengetik
     fun updateUiState(newDetail: DetailEntri) {
         uiState = EntryUiState(detailEntri = newDetail, isEntryValid = validasiInput(newDetail))
     }
 
     private fun validasiInput(uiState: DetailEntri = this.uiState.detailEntri): Boolean {
-        return uiState.title.isNotBlank() && uiState.description.isNotBlank() && uiState.genre.isNotBlank()
+        return uiState.title.isNotBlank() && uiState.description.isNotBlank()
     }
 
-    fun saveEntry(navigateBack: () -> Unit) {
+    // FUNGSI INI TELAH DIMODIFIKASI UNTUK UPLOAD GAMBAR
+    fun saveEntry(context: Context, navigateBack: () -> Unit) {
         viewModelScope.launch {
-            try {
-                // Konversi data dari form (DetailEntri) ke Model Database (EntriHiburan)
-                val entriBaru = uiState.detailEntri.toEntriHiburan()
+            if (validasiInput()) {
+                try {
+                    // 1. Ambil User ID dari Preferences
+                    val currentUserId = userPreferences.getUserId.first()
 
-                // Panggil API
-                val response = RetrofitClient.instance.insertEntertainment(entriBaru)
+                    if (currentUserId == null) {
+                        Log.e("EntryViewModel", "User ID tidak ditemukan")
+                        return@launch
+                    }
 
-                if (response.isSuccessful && response.body()?.success == true) {
+                    val detail = uiState.detailEntri
+
+                    // 2. Konversi URI ke File fisik (jika ada foto yang dipilih)
+                    var imageFile: File? = null
+                    if (detail.photo.isNotBlank()) {
+                        try {
+                            // Cek apakah ini URI content (dari galeri)
+                            if (detail.photo.startsWith("content://")) {
+                                val uri = android.net.Uri.parse(detail.photo)
+                                imageFile = FileUtils.getFileFromUri(context, uri)
+                            } else {
+                                // Opsional: Handle jika path file biasa (jarang terjadi di modern Android storage)
+                                // imageFile = File(detail.photo)
+                            }
+                        } catch (e: Exception) {
+                            Log.e("EntryViewModel", "Gagal memproses file gambar: ${e.message}")
+                        }
+                    }
+
+                    // 3. Siapkan data Entri (photo string diabaikan di sini karena dikirim sebagai file terpisah)
+                    val entriBaru = detail.toEntriHiburan(currentUserId)
+
+                    // 4. Panggil Repository dengan File Gambar
+                    // Pastikan EntriRepository.insertEntri sudah menerima parameter (EntriHiburan, File?)
+                    repository.insertEntri(entriBaru, imageFile)
+
+                    Log.d("EntryViewModel", "Simpan Berhasil untuk User ID: $currentUserId")
+
+                    // 5. Kembali ke halaman sebelumnya jika sukses
                     navigateBack()
-                } else {
-                    // Handle error jika perlu
+
+                } catch (e: Exception) {
+                    Log.e("EntryViewModel", "Simpan Gagal: ${e.message}")
+                    e.printStackTrace()
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
             }
         }
     }
 }
 
-// State untuk UI
+// --- DATA CLASSES & MAPPER ---
+
 data class EntryUiState(
     val detailEntri: DetailEntri = DetailEntri(),
     val isEntryValid: Boolean = false
 )
 
-// Data class khusus form (semua String biar gampang di TextField)
 data class DetailEntri(
     val title: String = "",
     val description: String = "",
     val genre: String = "",
     val photo: String = "",
-    val category: String = "watch", // Default
-    val status: String = "planned", // Default
+    val category: String = "watch",
+    val status: String = "planned",
     val rating: String = "0.0"
 )
 
-// Fungsi Mapper dari Form ke Model Database
-fun DetailEntri.toEntriHiburan(): EntriHiburan = EntriHiburan(
-    id = 0, // ID biasanya auto-increment di DB
+fun DetailEntri.toEntriHiburan(userId: Int): EntriHiburan = EntriHiburan(
+    id = 0,
+    userId = userId,
     title = title,
     description = description,
     genre = genre,
@@ -70,6 +111,4 @@ fun DetailEntri.toEntriHiburan(): EntriHiburan = EntriHiburan(
     category = category,
     status = status,
     rating = rating.toDoubleOrNull() ?: 0.0
-    // user_id harusnya dihandle di sini atau di backend session. 
-    // Jika perlu kirim user_id, tambahkan field di EntriHiburan
 )

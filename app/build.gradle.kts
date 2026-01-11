@@ -91,6 +91,8 @@ dependencies {
 
     // Navigasi
     implementation(libs.navigation.compose)
+    //datastore
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
 
     // Dependencies standar lainnya (biasanya sudah ada otomatis)
     implementation(platform("androidx.compose:compose-bom:2024.04.01"))
