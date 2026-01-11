@@ -16,8 +16,9 @@ class UserPreferences(private val context: Context) {
 
     companion object {
         private val USER_ID_KEY = intPreferencesKey("user_id")
-        private val USERNAME_KEY = stringPreferencesKey("username")     // Tambahan (Dari Modifikasi)
-        private val USER_TOKEN_KEY = stringPreferencesKey("user_token") // Tetap dipertahankan (Dari Reference)
+        private val USERNAME_KEY = stringPreferencesKey("username")
+        private val USER_TOKEN_KEY = stringPreferencesKey("user_token") // Tetap ada (dari kode lama)
+        private val EMAIL_KEY = stringPreferencesKey("email")           // Tambahan (dari modifikasi)
     }
 
     // 1. Ambil User ID
@@ -26,28 +27,34 @@ class UserPreferences(private val context: Context) {
             preferences[USER_ID_KEY]
         }
 
-    // 2. Ambil Username (Tambahan Baru)
-    // Default value "User" jika kosong, berguna untuk header Home
+    // 2. Ambil Username
     val getUsername: Flow<String> = context.dataStore.data
         .map { preferences ->
             preferences[USERNAME_KEY] ?: "User"
         }
 
-    // 3. Simpan Session (Gabungan)
-    // Menerima userId dan username (wajib), serta token (opsional/default kosong)
-    suspend fun saveSession(userId: Int, username: String, token: String = "") {
+    // 3. Ambil Email (Fitur Baru)
+    val getEmail: Flow<String> = context.dataStore.data
+        .map { preferences ->
+            preferences[EMAIL_KEY] ?: "user@example.com" // Default value jika kosong
+        }
+
+    // 4. Simpan Session (Gabungan)
+    // Sekarang WAJIB menerima email. Token tetap opsional agar fleksibel.
+    suspend fun saveSession(userId: Int, username: String, email: String, token: String = "") {
         context.dataStore.edit { preferences ->
             preferences[USER_ID_KEY] = userId
-            preferences[USERNAME_KEY] = username // Simpan Username
+            preferences[USERNAME_KEY] = username
+            preferences[EMAIL_KEY] = email // Simpan Email
 
-            // Simpan Token jika ada (agar logika lama tidak hilang)
+            // Simpan Token jika ada
             if (token.isNotEmpty()) {
                 preferences[USER_TOKEN_KEY] = token
             }
         }
     }
 
-    // 4. Logout (Hapus Data)
+    // 5. Logout (Hapus Data)
     suspend fun clearSession() {
         context.dataStore.edit { preferences ->
             preferences.clear()

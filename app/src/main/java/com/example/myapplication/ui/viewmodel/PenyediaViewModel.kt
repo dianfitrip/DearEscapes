@@ -32,20 +32,46 @@ object PenyediaViewModel {
             )
         }
 
-        // Initializer untuk DetailViewModel (PASTIKAN HANYA ADA SATU BLOK INI)
+        // Initializer untuk DetailViewModel
         initializer {
             DetailViewModel(
                 repository = aplikasiHiburan().container.entriRepository
             )
         }
 
+        // Initializer untuk UpdateViewModel
         initializer {
             UpdateViewModel(
                 repository = aplikasiHiburan().container.entriRepository
             )
         }
+
+        // --- PERBAIKAN: HANYA ADA SATU ProfileViewModel ---
+        // (Sebelumnya ada dua yang menyebabkan crash "IllegalArgumentException")
+        initializer {
+            ProfileViewModel(
+                userPreferences = aplikasiHiburan().container.userPreferences,
+                repository = aplikasiHiburan().container.entriRepository
+            )
+        }
+
+        // --- TAMBAHAN BARU: EditProfileViewModel ---
+        initializer {
+            EditProfileViewModel(
+                userPreferences = aplikasiHiburan().container.userPreferences
+            )
+        }
+
+        // [TAMBAHAN BARU] Initializer untuk StatistikViewModel
+        initializer {
+            StatistikViewModel(
+                repository = aplikasiHiburan().container.entriRepository,
+                userPreferences = aplikasiHiburan().container.userPreferences
+            )
+        }
     }
 }
 
+// Extension function untuk mempermudah akses ke Application
 fun CreationExtras.aplikasiHiburan(): MyApplication =
     (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as MyApplication)

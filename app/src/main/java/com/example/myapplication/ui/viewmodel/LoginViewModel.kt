@@ -10,12 +10,10 @@ import com.example.myapplication.data.model.LoginRequest
 import com.example.myapplication.data.repository.UserPreferences
 import kotlinx.coroutines.launch
 
-// Constructor menerima UserPreferences
 class LoginViewModel(private val userPreferences: UserPreferences) : ViewModel() {
 
     var loginStatus by mutableStateOf("")
 
-    // Fungsi login menerima callback onSuccess
     fun login(email: String, passInput: String, onSuccess: () -> Unit) {
 
         // 1. Cek input kosong
@@ -25,7 +23,7 @@ class LoginViewModel(private val userPreferences: UserPreferences) : ViewModel()
         }
 
         // 2. Cek Panjang Password
-        if (passInput.length != 6) {
+        if (passInput.length != 6) { // Sesuaikan validasi jika perlu (misal min 6)
             loginStatus = "Gagal: panjang password harus 6"
             return
         }
@@ -43,9 +41,11 @@ class LoginViewModel(private val userPreferences: UserPreferences) : ViewModel()
                         val user = responseBody.data
 
                         if (user != null) {
-                            // --- MODIFIKASI: MENYIMPAN ID DAN USERNAME ---
-                            // Kita panggil saveSession dengan 2 parameter sesuai update UserPreferences
-                            userPreferences.saveSession(user.id, user.username)
+                            userPreferences.saveSession(
+                                userId = user.id,
+                                username = user.username,
+                                email = email // Menambahkan email ke session
+                            )
 
                             loginStatus = "Berhasil: Selamat datang ${user.username}"
 

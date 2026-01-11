@@ -1,7 +1,5 @@
 package com.example.myapplication.ui.navigation
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -13,8 +11,11 @@ import androidx.navigation.navArgument
 import com.example.myapplication.ui.view.HalamanWelcome
 import com.example.myapplication.ui.view.auth.HalamanLogin
 import com.example.myapplication.ui.view.auth.HalamanRegister
+import com.example.myapplication.ui.view.detail.HalamanDetail
 import com.example.myapplication.ui.view.entry.HalamanEntry
-import com.example.myapplication.ui.view.home.HalamanHome
+import com.example.myapplication.ui.view.entry.HalamanUpdate
+import com.example.myapplication.ui.view.main.HalamanHome
+import com.example.myapplication.ui.view.profile.HalamanEditProfile
 
 // --- 1. DEFINISI DESTINASI ---
 
@@ -43,21 +44,18 @@ object DestinasiHome : DestinasiNavigasi {
     override val titleRes = "Home"
 }
 
-// Tambahan untuk tombol "Tambah Data" di Home
 object DestinasiEntry : DestinasiNavigasi {
     override val route = "entry_hiburan"
     override val titleRes = "Tambah Hiburan"
 }
 
-// Tambahan untuk klik item di Home (Detail)
 object DestinasiDetail : DestinasiNavigasi {
     override val route = "detail_hiburan"
     override val titleRes = "Detail Hiburan"
-    const val idArg = "id_hiburan" // Argument ID untuk navigasi
+    const val idArg = "id_hiburan"
     val routeWithArg = "$route/{$idArg}"
 }
 
-// Tambahan untuk Halaman Update/Edit
 object DestinasiUpdate : DestinasiNavigasi {
     override val route = "update_hiburan"
     override val titleRes = "Edit Hiburan"
@@ -65,7 +63,14 @@ object DestinasiUpdate : DestinasiNavigasi {
     val routeWithArg = "$route/{$idArg}"
 }
 
-// --- 2. PENGELOLA NAVIGASI (NAVGRAPH) ---
+object DestinasiEditProfil : DestinasiNavigasi {
+    override val route = "edit_profil"
+    override val titleRes = "Edit Profil"
+}
+
+// Catatan: DestinasiProfil dihapus karena sekarang dimuat di dalam HalamanHome (State-based)
+
+// --- 3. PENGELOLA NAVIGASI (NAVGRAPH) ---
 
 @Composable
 fun NavGraph(
@@ -102,7 +107,6 @@ fun NavGraph(
                     navController.navigate(DestinasiRegister.route)
                 },
                 onLoginSuccess = {
-                    // Masuk ke Home dan hapus history agar tidak bisa back ke login
                     navController.navigate(DestinasiHome.route) {
                         popUpTo(DestinasiWelcome.route) { inclusive = true }
                     }
@@ -114,12 +118,19 @@ fun NavGraph(
         composable(route = DestinasiHome.route) {
             HalamanHome(
                 onDetailClick = { id ->
-                    // Navigasi ke Detail membawa ID
                     navController.navigate("${DestinasiDetail.route}/$id")
                 },
                 onAddClick = {
-                    // Navigasi ke Halaman Entry (Tambah Data)
                     navController.navigate(DestinasiEntry.route)
+                },
+                onLogout = {
+                    navController.navigate(DestinasiLogin.route) {
+                        popUpTo(0) { inclusive = true } // Hapus semua backstack
+                    }
+                },
+                // [MODIFIKASI PENTING]: Callback untuk navigasi ke Edit Profil
+                onEditProfileClick = {
+                    navController.navigate(DestinasiEditProfil.route)
                 }
             )
         }
@@ -128,7 +139,6 @@ fun NavGraph(
         composable(route = DestinasiEntry.route) {
             HalamanEntry(
                 navigateBack = {
-                    // Kembali ke halaman sebelumnya (Home) setelah simpan atau tekan back
                     navController.popBackStack()
                 }
             )
@@ -141,14 +151,11 @@ fun NavGraph(
                 type = NavType.IntType
             })
         ) { backStackEntry ->
-            // Ambil ID dari argumen navigasi (default 0 jika error)
             val id = backStackEntry.arguments?.getInt(DestinasiDetail.idArg) ?: 0
 
-            // Panggil Halaman Detail yang sesungguhnya
-            com.example.myapplication.ui.view.detail.HalamanDetail(
+            HalamanDetail(
                 id = id,
                 navigateBack = { navController.popBackStack() },
-                // MODIFIKASI: Tambahkan navigasi ke Halaman Update
                 navigateToEdit = { editId ->
                     navController.navigate("${DestinasiUpdate.route}/$editId")
                 }
@@ -163,9 +170,18 @@ fun NavGraph(
             })
         ) { backStackEntry ->
             val id = backStackEntry.arguments?.getInt(DestinasiUpdate.idArg) ?: 0
-            com.example.myapplication.ui.view.entry.HalamanUpdate(
+            HalamanUpdate(
                 id = id,
                 navigateBack = { navController.popBackStack() }
+            )
+        }
+
+        // --- [TAMBAHAN BARU] HALAMAN EDIT PROFIL ---
+        composable(DestinasiEditProfil.route) {
+            HalamanEditProfile(
+                navigateBack = {
+                    navController.popBackStack()
+                }
             )
         }
     }

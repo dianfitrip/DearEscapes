@@ -6,6 +6,7 @@ import com.example.myapplication.data.model.LoginRequest
 import com.example.myapplication.data.model.LoginResponse
 import com.example.myapplication.data.model.RegisterRequest
 import com.example.myapplication.data.model.RegisterResponse
+import com.example.myapplication.data.model.UpdateProfileRequest
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
@@ -38,8 +39,13 @@ interface ApiService {
     @DELETE("delete-entertainment/{id}")
     suspend fun deleteEntertainment(@Path("id") id: Int): Response<EntertainmentDetailResponse>
 
-    // --- INSERT DATA (MULTIPART/UPLOAD FILE) ---
-    // Kita ubah ini menjadi @Multipart agar bisa kirim gambar
+    @PUT("update-user/{id}")
+    suspend fun updateUser(
+        @Path("id") id: Int,
+        @Body request: UpdateProfileRequest
+    ): Response<RegisterResponse>
+
+    // @Multipart agar bisa kirim gambar
     @Multipart
     @POST("insert-entertainment")
     suspend fun insertEntertainment(
