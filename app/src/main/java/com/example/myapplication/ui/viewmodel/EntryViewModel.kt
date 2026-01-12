@@ -2,6 +2,7 @@ package com.example.myapplication.ui.viewmodel
 
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -10,7 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.myapplication.data.model.EntriHiburan
 import com.example.myapplication.data.repository.EntriRepository
 import com.example.myapplication.data.repository.UserPreferences
-import com.example.myapplication.utils.FileUtils // Pastikan FileUtils sudah dibuat di package utils
+import com.example.myapplication.utils.FileUtils
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.io.File
@@ -31,54 +32,58 @@ class EntryViewModel(
         return uiState.title.isNotBlank() && uiState.description.isNotBlank()
     }
 
-    // FUNGSI INI TELAH DIMODIFIKASI UNTUK UPLOAD GAMBAR
+    // FUNGSI INI TELAH DIMODIFIKASI
     fun saveEntry(context: Context, navigateBack: () -> Unit) {
         viewModelScope.launch {
-            if (validasiInput()) {
-                try {
-                    // 1. Ambil User ID dari Preferences
-                    val currentUserId = userPreferences.getUserId.first()
+            // 1. Cek Validasi dan Tampilkan Toast jika Gagal
+            if (!validasiInput()) {
+                Toast.makeText(context, "Mohon isi Judul dan Deskripsi!", Toast.LENGTH_SHORT).show()
+                return@launch
+            }
 
-                    if (currentUserId == null) {
-                        Log.e("EntryViewModel", "User ID tidak ditemukan")
-                        return@launch
-                    }
+            try {
+                // 2. Ambil User ID
+                val currentUserId = userPreferences.getUserId.first()
 
-                    val detail = uiState.detailEntri
-
-                    // 2. Konversi URI ke File fisik (jika ada foto yang dipilih)
-                    var imageFile: File? = null
-                    if (detail.photo.isNotBlank()) {
-                        try {
-                            // Cek apakah ini URI content (dari galeri)
-                            if (detail.photo.startsWith("content://")) {
-                                val uri = android.net.Uri.parse(detail.photo)
-                                imageFile = FileUtils.getFileFromUri(context, uri)
-                            } else {
-                                // Opsional: Handle jika path file biasa (jarang terjadi di modern Android storage)
-                                // imageFile = File(detail.photo)
-                            }
-                        } catch (e: Exception) {
-                            Log.e("EntryViewModel", "Gagal memproses file gambar: ${e.message}")
-                        }
-                    }
-
-                    // 3. Siapkan data Entri (photo string diabaikan di sini karena dikirim sebagai file terpisah)
-                    val entriBaru = detail.toEntriHiburan(currentUserId)
-
-                    // 4. Panggil Repository dengan File Gambar
-                    // Pastikan EntriRepository.insertEntri sudah menerima parameter (EntriHiburan, File?)
-                    repository.insertEntri(entriBaru, imageFile)
-
-                    Log.d("EntryViewModel", "Simpan Berhasil untuk User ID: $currentUserId")
-
-                    // 5. Kembali ke halaman sebelumnya jika sukses
-                    navigateBack()
-
-                } catch (e: Exception) {
-                    Log.e("EntryViewModel", "Simpan Gagal: ${e.message}")
-                    e.printStackTrace()
+                if (currentUserId == null) {
+                    Toast.makeText(context, "Sesi berakhir, silakan login ulang", Toast.LENGTH_SHORT).show()
+                    return@launch
                 }
+
+                val detail = uiState.detailEntri
+
+                // 3. Konversi URI ke File fisik (jika ada foto yang dipilih)
+                var imageFile: File? = null
+                if (detail.photo.isNotBlank()) {
+                    try {
+                        if (detail.photo.startsWith("content://")) {
+                            val uri = android.net.Uri.parse(detail.photo)
+                            imageFile = FileUtils.getFileFromUri(context, uri)
+                        }
+                    } catch (e: Exception) {
+                        Log.e("EntryViewModel", "Gagal memproses file gambar: ${e.message}")
+                    }
+                }
+
+                // 4. Siapkan data Entri
+                val entriBaru = detail.toEntriHiburan(currentUserId)
+
+                // 5. Panggil Repository
+                repository.insertEntri(entriBaru, imageFile)
+
+                Log.d("EntryViewModel", "Simpan Berhasil untuk User ID: $currentUserId")
+
+                // [TAMBAHAN] Toast Sukses
+                Toast.makeText(context, "Berhasil Menambahkan Hiburan!", Toast.LENGTH_SHORT).show()
+
+                // 6. Kembali ke halaman sebelumnya
+                navigateBack()
+
+            } catch (e: Exception) {
+                // [TAMBAHAN] Toast Error
+                Log.e("EntryViewModel", "Simpan Gagal: ${e.message}")
+                e.printStackTrace()
+                Toast.makeText(context, "Gagal menyimpan: ${e.message}", Toast.LENGTH_LONG).show()
             }
         }
     }

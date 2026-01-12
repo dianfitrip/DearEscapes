@@ -1,5 +1,6 @@
 package com.example.myapplication.ui.view.entry
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -7,12 +8,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myapplication.ui.theme.CottonCandyBlue
@@ -29,11 +29,11 @@ fun HalamanUpdate(
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-
-    // 1. Tambahkan State untuk Scroll
     val scrollState = rememberScrollState()
 
-    // Load data lama saat halaman dibuka
+    // State untuk Dialog Konfirmasi Update
+    var showConfirmDialog by remember { mutableStateOf(false) }
+
     LaunchedEffect(id) {
         viewModel.loadEntri(id)
     }
@@ -41,7 +41,7 @@ fun HalamanUpdate(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Edit Hiburan", color = CottonCandyBlue) },
+                title = { Text("Edit Hiburan", color = CottonCandyBlue, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = navigateBack) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = CottonCandyBlue)
@@ -50,18 +50,16 @@ fun HalamanUpdate(
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.White)
             )
         },
-        containerColor = Color(0xFFF5F9FF) // Samakan background dengan HalamanEntry
+        containerColor = Color(0xFFF5F9FF)
     ) { innerPadding ->
 
-        // 2. Tambahkan Column Utama dengan verticalScroll
         Column(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
-                .verticalScroll(scrollState) // <-- INI KUNCINYA AGAR BISA DISCROLL
+                .verticalScroll(scrollState)
                 .padding(16.dp)
         ) {
-            // 3. Bungkus dengan Card agar estetik (Sama seperti HalamanEntry)
             Card(
                 colors = CardDefaults.cardColors(containerColor = Color.White),
                 shape = RoundedCornerShape(24.dp),
@@ -72,18 +70,51 @@ fun HalamanUpdate(
                     modifier = Modifier.padding(20.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    // Kita pakai EntryBody yang sudah ada (Reuse Component)
+                    // Reuse EntryBody (sekarang sudah bersih dari dialog internal)
                     EntryBody(
                         entryUiState = viewModel.uiState,
                         onValueChange = viewModel::updateUiState,
                         onSaveClick = {
-                            coroutineScope.launch {
-                                viewModel.updateEntri(id, context, navigateBack)
+                            // Cek Validasi di SINI (Parent HalamanUpdate)
+                            if (viewModel.uiState.isEntryValid) {
+                                showConfirmDialog = true // Munculkan dialog UPDATE
+                            } else {
+                                Toast.makeText(context, "Mohon lengkapi Judul dan Deskripsi!", Toast.LENGTH_SHORT).show()
                             }
                         }
                     )
                 }
             }
         }
+    }
+
+    // [DIALOG KONFIRMASI UPDATE - KHUSUS HALAMAN UPDATE]
+    if (showConfirmDialog) {
+        AlertDialog(
+            onDismissRequest = { showConfirmDialog = false },
+            title = { Text("Konfirmasi Update", fontWeight = FontWeight.Bold, color = CottonCandyBlue) },
+            text = { Text("Apakah kamu yakin ingin merubah data ini?") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showConfirmDialog = false
+                        // Eksekusi Update
+                        coroutineScope.launch {
+                            viewModel.updateEntri(id, context, navigateBack)
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = CottonCandyBlue)
+                ) {
+                    Text("Ya, Ubah")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showConfirmDialog = false }) {
+                    Text("Batal", color = Color.Gray)
+                }
+            },
+            containerColor = Color.White,
+            shape = RoundedCornerShape(16.dp)
+        )
     }
 }

@@ -21,6 +21,7 @@ import com.example.myapplication.ui.viewmodel.HomeUiState
 import com.example.myapplication.ui.viewmodel.HomeViewModel
 import com.example.myapplication.ui.viewmodel.PenyediaViewModel
 import com.example.myapplication.ui.view.profile.HalamanProfil
+import com.example.myapplication.ui.view.search.HalamanSearch
 import com.example.myapplication.ui.view.statistic.HalamanStatistik
 // IMPORT WIDGET YANG BARU KITA BUAT
 import com.example.myapplication.ui.view.widget.CottonCandyBottomBar
@@ -75,7 +76,9 @@ fun HalamanHome(
         Box(modifier = Modifier.padding(innerPadding)) {
             when (activeMenu) {
                 "Home" -> ContentHome(uiState, viewModel, onDetailClick)
-                "Search" -> PlaceholderScreen("Fitur Pencarian Segera Hadir")
+                "Search" -> HalamanSearch(
+                    onDetailClick = onDetailClick
+                )
                 "Statistik" -> HalamanStatistik()
                 "Profil" -> HalamanProfil(
                     onLogout = onLogout,

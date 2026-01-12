@@ -2,6 +2,7 @@ package com.example.myapplication.data.repository
 
 import com.example.myapplication.data.apiservice.ApiService
 import com.example.myapplication.data.model.EntertainmentResponse
+import com.example.myapplication.data.model.EntriResponse
 import com.example.myapplication.data.model.EntriHiburan
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -21,11 +22,14 @@ interface EntriRepository {
     // Get Detail: Mengambil satu data berdasarkan ID
     suspend fun getEntriById(id: Int): EntriHiburan
 
-    // Update: Mengedit data berdasarkan ID (Modifikasi Baru)
+    // Update: Mengedit data berdasarkan ID
     suspend fun updateEntri(id: Int, entriHiburan: EntriHiburan, imageFile: File?)
 
     // Delete: Menghapus data berdasarkan ID
     suspend fun deleteEntri(id: Int)
+
+    // [PERBAIKAN] Deklarasi fungsi search TANPA body {}
+    suspend fun searchEntri(userId: Int, query: String?, genre: String?): Response<EntriResponse>
 }
 
 // Implementasi Repository
@@ -92,7 +96,6 @@ class NetworkEntriRepository(
         }
     }
 
-    // --- IMPLEMENTASI MODIFIKASI UPDATE ---
     override suspend fun updateEntri(id: Int, entriHiburan: EntriHiburan, imageFile: File?) {
         // 1. Konversi data teks ke RequestBody
         val titleRB = entriHiburan.title.toRequestBody("text/plain".toMediaTypeOrNull())
@@ -111,7 +114,6 @@ class NetworkEntriRepository(
         }
 
         // 3. Panggil API Update
-        // Note: Pastikan urutan parameter sesuai dengan ApiService Anda
         val response = apiService.updateEntertainment(
             id = id,
             title = titleRB,
@@ -128,7 +130,7 @@ class NetworkEntriRepository(
             throw Exception("Gagal Update. Kode: ${response.code()}")
         }
 
-        // 5. Cek Error dari Body API (misal success: false)
+        // 5. Cek Error dari Body API
         val body = response.body()
         if (body != null && !body.success) {
             throw Exception(body.message)
@@ -146,5 +148,10 @@ class NetworkEntriRepository(
         if (body != null && !body.success) {
             throw Exception(body.message)
         }
+    }
+
+    // [PERBAIKAN] Implementasi fungsi search ditaruh di sini (Override)
+    override suspend fun searchEntri(userId: Int, query: String?, genre: String?): Response<EntriResponse> {
+        return apiService.searchEntertainments(userId, query, genre)
     }
 }

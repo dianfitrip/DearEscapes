@@ -1,6 +1,7 @@
 package com.example.myapplication.ui.viewmodel
 
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -44,11 +45,16 @@ class UpdateViewModel(
 
     fun updateEntri(id: Int, context: Context, navigateBack: () -> Unit) {
         viewModelScope.launch {
+            // [MODIFIKASI] Validasi Input dengan Toast
+            if (!validasiInput()) {
+                Toast.makeText(context, "Mohon isi Judul dan Deskripsi!", Toast.LENGTH_SHORT).show()
+                return@launch
+            }
+
             try {
                 val detail = uiState.detailEntri
 
                 // Cek apakah user mengganti foto?
-                // Logikanya: Jika string photo berubah jadi URI content://, berarti diganti.
                 var imageFile: File? = null
                 if (detail.photo.startsWith("content://")) {
                     val uri = android.net.Uri.parse(detail.photo)
@@ -56,13 +62,18 @@ class UpdateViewModel(
                 }
 
                 // Convert UI State ke Model Data
-                // UserId tidak perlu diupdate, biarkan 0 atau id lama
                 val entriUpdate = detail.toEntriHiburan(0)
 
                 repository.updateEntri(id, entriUpdate, imageFile)
+
+                // [MODIFIKASI] Toast Sukses
+                Toast.makeText(context, "Data Berhasil Diperbarui!", Toast.LENGTH_SHORT).show()
+
                 navigateBack()
             } catch (e: Exception) {
+                // [MODIFIKASI] Toast Error
                 e.printStackTrace()
+                Toast.makeText(context, "Gagal update: ${e.message}", Toast.LENGTH_LONG).show()
             }
         }
     }

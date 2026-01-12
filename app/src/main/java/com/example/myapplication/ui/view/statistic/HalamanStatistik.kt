@@ -22,10 +22,10 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.translate
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign // [PENTING] Import untuk rata tengah
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -125,22 +125,26 @@ fun HalamanStatistik(
                             }
                         }
 
-                        // 3. GRAFIK GENRE (Bar Chart)
+                        // 3. GRAFIK GENRE (Bar Chart) - [DIMODIFIKASI]
                         item {
                             ChartCard(title = "Genre Terfavorit") {
                                 Column {
-                                    data.genreDistribution.entries.take(4).forEachIndexed { index, entry ->
-                                        val color = PastelColors[index % PastelColors.size]
-                                        val percentage = if (data.totalEntry > 0) entry.value.toFloat() / data.totalEntry.toFloat() else 0f
+                                    // Urutkan data berdasarkan value (jumlah) dari besar ke kecil
+                                    data.genreDistribution.entries
+                                        .sortedByDescending { it.value } // <-- PERUBAHAN DISINI
+                                        .take(4) // Ambil 4 teratas setelah diurutkan
+                                        .forEachIndexed { index, entry ->
+                                            val color = PastelColors[index % PastelColors.size]
+                                            val percentage = if (data.totalEntry > 0) entry.value.toFloat() / data.totalEntry.toFloat() else 0f
 
-                                        GenreBarItem(
-                                            label = entry.key,
-                                            count = entry.value,
-                                            percentage = percentage,
-                                            color = color
-                                        )
-                                        Spacer(modifier = Modifier.height(12.dp))
-                                    }
+                                            GenreBarItem(
+                                                label = entry.key,
+                                                count = entry.value,
+                                                percentage = percentage,
+                                                color = color
+                                            )
+                                            Spacer(modifier = Modifier.height(12.dp))
+                                        }
                                 }
                             }
                         }
@@ -271,7 +275,6 @@ fun SummaryCard(
     }
 }
 
-// [MODIFIKASI] Update ChartCard agar judulnya rata tengah
 @Composable
 fun ChartCard(title: String, content: @Composable () -> Unit) {
     Card(
@@ -286,8 +289,8 @@ fun ChartCard(title: String, content: @Composable () -> Unit) {
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 color = CottonCandyBlue,
-                modifier = Modifier.fillMaxWidth(), // Agar bisa di-center
-                textAlign = TextAlign.Center // Rata Tengah
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(16.dp))
             content()

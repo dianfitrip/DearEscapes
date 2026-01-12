@@ -7,6 +7,9 @@ import com.example.myapplication.data.model.LoginResponse
 import com.example.myapplication.data.model.RegisterRequest
 import com.example.myapplication.data.model.RegisterResponse
 import com.example.myapplication.data.model.UpdateProfileRequest
+import com.example.myapplication.data.model.StatistikResponse
+import retrofit2.http.Query
+import com.example.myapplication.data.model.EntriResponse //untuk search
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
@@ -44,6 +47,18 @@ interface ApiService {
         @Path("id") id: Int,
         @Body request: UpdateProfileRequest
     ): Response<RegisterResponse>
+
+    //Ambil data statistik yang sudah diolah server
+    @GET("statistics/{userId}")
+    suspend fun getUserStatistics(@Path("userId") userId: Int): Response<StatistikResponse>
+
+    @GET("entertainments")
+    suspend fun searchEntertainments(
+        @Query("user_id") userId: Int,
+        @Query("search") search: String? = null,
+        @Query("genre") genre: String? = null
+    ): Response<EntriResponse>
+
 
     // @Multipart agar bisa kirim gambar
     @Multipart

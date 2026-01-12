@@ -46,8 +46,7 @@ object PenyediaViewModel {
             )
         }
 
-        // --- PERBAIKAN: HANYA ADA SATU ProfileViewModel ---
-        // (Sebelumnya ada dua yang menyebabkan crash "IllegalArgumentException")
+        //ProfileViewModel
         initializer {
             ProfileViewModel(
                 userPreferences = aplikasiHiburan().container.userPreferences,
@@ -55,16 +54,22 @@ object PenyediaViewModel {
             )
         }
 
-        // --- TAMBAHAN BARU: EditProfileViewModel ---
+        //EditProfileViewModel
         initializer {
             EditProfileViewModel(
                 userPreferences = aplikasiHiburan().container.userPreferences
             )
         }
 
-        // [TAMBAHAN BARU] Initializer untuk StatistikViewModel
+        //Initializer untuk StatistikViewModel
         initializer {
             StatistikViewModel(
+                userPreferences = aplikasiHiburan().container.userPreferences
+            )
+        }
+
+        initializer {
+            SearchViewModel(
                 repository = aplikasiHiburan().container.entriRepository,
                 userPreferences = aplikasiHiburan().container.userPreferences
             )
