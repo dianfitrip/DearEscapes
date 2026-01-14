@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-// State untuk menyimpan jumlah statistik
+// Data class untuk menampung hasil hitungan statistik di UI
 data class ProfileStats(
     val planned: Int = 0,
     val inProgress: Int = 0,
@@ -26,6 +26,7 @@ class ProfileViewModel(
     private val repository: EntriRepository
 ) : ViewModel() {
 
+    // Mengambil Username secara realtime
     val username: StateFlow<String> = userPreferences.getUsername
         .stateIn(
             scope = viewModelScope,
@@ -33,6 +34,7 @@ class ProfileViewModel(
             initialValue = "Loading..."
         )
 
+    // Mengambil Email secara realtime
     val email: StateFlow<String> = userPreferences.getEmail
         .stateIn(
             scope = viewModelScope,
@@ -40,47 +42,64 @@ class ProfileViewModel(
             initialValue = "Loading..."
         )
 
-    // --- PERBAIKAN DI SINI ---
-    // Hapus kode 'val stats = repository.getEntriFlow()...' yang error itu.
-    // Kita pakai yang Manual Fetch di bawah ini saja.
-
+    // StateFlow untuk menyimpan data statistik yang akan ditampilkan di HalamanProfil
     private val _uiStats = MutableStateFlow(ProfileStats())
     val uiStats: StateFlow<ProfileStats> = _uiStats.asStateFlow()
 
-    fun fetchProfileData() {
+    init {
+        fetchUserProfile()
+    }
+
+    /**
+     * Fungsi untuk mengambil data entri milik user dan menghitung statistiknya.
+     * [MODIFIKASI] Ubah menjadi PUBLIC (tanpa 'private') agar bisa dipanggil dari UI
+     */
+    fun fetchUserProfile() {
         viewModelScope.launch {
             try {
-                // Ambil User ID aktif
-                val userId = userPreferences.getUserId.first() ?: return@launch
+                // 1. Ambil User ID dari sesi login (DataStore)
+                val userId = userPreferences.getUserId.first()
 
-                // Ambil data dari API/DB
-                val response = repository.getEntri()
+                // Pastikan userId valid
+                if (userId != null && userId != 0) {
 
-                if (response.isSuccessful && response.body() != null) {
-                    // Filter data milik user ini saja
-                    val allData = response.body()!!.data.filter { it.userId == userId }
-
-                    // Hitung statistik
-                    val planned = allData.count { it.status.equals("planned", ignoreCase = true) }
-                    val inProgress = allData.count { it.status.equals("in_progress", ignoreCase = true) }
-                    val completed = allData.count { it.status.equals("completed", ignoreCase = true) }
-                    val dropped = allData.count { it.status.equals("dropped", ignoreCase = true) }
-
-                    // Update State UI
-                    _uiStats.value = ProfileStats(
-                        planned = planned,
-                        inProgress = inProgress,
-                        completed = completed,
-                        dropped = dropped,
-                        total = allData.size
+                    // 2. Panggil API searchEntri (Menggunakan endpoint yang sudah support filter by ID)
+                    val response = repository.searchEntri(
+                        userId = userId,
+                        query = null,
+                        genre = null
                     )
+
+                    if (response.isSuccessful && response.body()?.success == true) {
+                        // Data yang diterima dari server (List<EntriHiburan>)
+                        val myData = response.body()!!.data
+
+                        // 3. Hitung Statistik berdasarkan field 'status'
+                        val planned = myData.count { it.status.equals("planned", ignoreCase = true) }
+                        val inProgress = myData.count { it.status.equals("in_progress", ignoreCase = true) }
+                        val completed = myData.count { it.status.equals("completed", ignoreCase = true) }
+                        val dropped = myData.count { it.status.equals("dropped", ignoreCase = true) }
+
+                        // 4. Update UI State dengan hasil hitungan
+                        _uiStats.value = ProfileStats(
+                            planned = planned,
+                            inProgress = inProgress,
+                            completed = completed,
+                            dropped = dropped,
+                            total = myData.size
+                        )
+                    }
                 }
             } catch (e: Exception) {
-                // Error handling (bisa ditambahkan log jika perlu)
+                // Handle error silent
+                e.printStackTrace()
             }
         }
     }
 
+    /**
+     * Fungsi Logout
+     */
     fun logout() {
         viewModelScope.launch {
             userPreferences.clearSession()

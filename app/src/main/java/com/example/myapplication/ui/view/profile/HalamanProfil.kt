@@ -2,24 +2,28 @@ package com.example.myapplication.ui.view.profile
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.ExitToApp
-import androidx.compose.material.icons.rounded.*
-import androidx.compose.material3.*
+import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.rounded.* import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.myapplication.ui.theme.* import com.example.myapplication.ui.viewmodel.PenyediaViewModel
+import com.example.myapplication.ui.theme.CottonCandyBlue
+import com.example.myapplication.ui.viewmodel.PenyediaViewModel
 import com.example.myapplication.ui.viewmodel.ProfileViewModel
 import kotlin.math.abs
 
@@ -33,206 +37,149 @@ fun HalamanProfil(
     val username by viewModel.username.collectAsState()
     val email by viewModel.email.collectAsState()
     val stats by viewModel.uiStats.collectAsState()
+    val scrollState = rememberScrollState()
 
-    // [MODIFIKASI] State untuk Dialog Logout
-    var showLogoutDialog by remember { mutableStateOf(false) }
-
+    // --- [PENTING] Refresh data otomatis saat halaman ini dibuka ---
     LaunchedEffect(Unit) {
-        viewModel.fetchProfileData()
-    }
-
-    // --- DIALOG VALIDASI LOGOUT ---
-    if (showLogoutDialog) {
-        AlertDialog(
-            onDismissRequest = { showLogoutDialog = false },
-            title = { Text("Konfirmasi Keluar") },
-            text = { Text("Apakah anda yakin ingin keluar dari aplikasi?") },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        showLogoutDialog = false
-                        viewModel.logout()
-                        onLogout()
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = SoftPink) // Warna Merah Muda
-                ) {
-                    Text("Ya, Keluar")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showLogoutDialog = false }) {
-                    Text("Batal", color = Color.Gray)
-                }
-            },
-            containerColor = Color.White,
-            shape = RoundedCornerShape(16.dp)
-        )
+        viewModel.fetchUserProfile()
     }
 
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(SoftBackground)
-            .padding(20.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .background(Color(0xFFF8FBFF))
+            .verticalScroll(scrollState)
     ) {
+        // --- HEADER USER ---
+        Box(modifier = Modifier.fillMaxWidth().height(280.dp)) {
+            // Background Lengkung
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = 40.dp)
+                    .clip(RoundedCornerShape(bottomStart = 40.dp, bottomEnd = 40.dp))
+                    .background(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(CottonCandyBlue, CottonCandyBlue.copy(alpha = 0.8f))
+                        )
+                    )
+            )
 
-        // --- 1. HEADER: TOMBOL LOGOUT ---
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp),
-            horizontalArrangement = Arrangement.End
-        ) {
-            // [MODIFIKASI] Tombol ini sekarang memicu Dialog, bukan langsung logout
-            IconButton(onClick = { showLogoutDialog = true }) {
-                Icon(
-                    imageVector = Icons.Default.ExitToApp,
-                    contentDescription = "Logout",
-                    tint = SoftPink
-                )
+            // Konten User
+            Column(
+                modifier = Modifier.fillMaxSize().padding(top = 40.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text("Profil Saya", color = Color.White, fontSize = 20.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(bottom = 20.dp))
+
+                // Avatar
+                Box(contentAlignment = Alignment.BottomEnd) {
+                    Surface(
+                        shape = CircleShape,
+                        shadowElevation = 8.dp,
+                        border = androidx.compose.foundation.BorderStroke(4.dp, Color.White),
+                        modifier = Modifier.size(110.dp)
+                    ) {
+                        Box(contentAlignment = Alignment.Center, modifier = Modifier.background(Color(0xFFE3F2FD))) {
+                            Icon(
+                                imageVector = getCuteAvatar(username),
+                                contentDescription = null,
+                                tint = CottonCandyBlue,
+                                modifier = Modifier.size(60.dp)
+                            )
+                        }
+                    }
+                    SmallFloatingActionButton(
+                        onClick = onEditClick,
+                        containerColor = Color.White,
+                        contentColor = CottonCandyBlue,
+                        modifier = Modifier.size(36.dp).offset(x = 4.dp, y = 4.dp),
+                        shape = CircleShape
+                    ) {
+                        Icon(Icons.Default.Edit, contentDescription = "Edit", modifier = Modifier.size(18.dp))
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(username, fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color(0xFF2D3436))
+                Text(email, fontSize = 14.sp, color = Color.Gray)
             }
         }
 
-        // --- 2. AVATAR & INFO USER ---
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .size(120.dp)
-                .clip(CircleShape)
-                .background(Color.White)
-        ) {
-            Icon(
-                imageVector = getCuteAvatarProfil(username),
-                contentDescription = null,
-                tint = CottonCandyBlue,
-                modifier = Modifier.size(80.dp)
-            )
+        // --- RINGKASAN AKTIVITAS ---
+        Column(modifier = Modifier.padding(horizontal = 24.dp)) {
+            Text("Ringkasan Aktivitas", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = CottonCandyBlue, modifier = Modifier.padding(vertical = 16.dp))
+
+            // Total Card
+            StatCardWide("Koleksi Disimpan", stats.total.toString(), Icons.Rounded.Bookmarks, CottonCandyBlue)
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Grid Stats
+            Row(Modifier.fillMaxWidth()) {
+                StatCardSmall(Modifier.weight(1f), "Selesai", stats.completed.toString(), Icons.Rounded.CheckCircle, Color(0xFF4CAF50), Color(0xFFE8F5E9))
+                Spacer(Modifier.width(16.dp))
+                StatCardSmall(Modifier.weight(1f), "Sedang Baca", stats.inProgress.toString(), Icons.Rounded.AutoStories, Color(0xFF2196F3), Color(0xFFE3F2FD))
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(Modifier.fillMaxWidth()) {
+                StatCardSmall(Modifier.weight(1f), "Rencana", stats.planned.toString(), Icons.Rounded.DateRange, Color(0xFFFF9800), Color(0xFFFFF3E0))
+                Spacer(Modifier.width(16.dp))
+                StatCardSmall(Modifier.weight(1f), "Drop", stats.dropped.toString(), Icons.Rounded.DeleteSweep, Color(0xFFF44336), Color(0xFFFFEBEE))
+            }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
-        Text(
-            text = "Halo, $username!",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            color = CottonCandyBlue
-        )
-        Text(
-            text = "Your Quiet Escapes",
-            fontSize = 14.sp,
-            color = Color.Gray,
-            fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
-        )
-        Text(
-            text = email,
-            fontSize = 14.sp,
-            color = Color.Gray
-        )
-
-        Spacer(modifier = Modifier.height(30.dp))
-
-        // --- 3. STATISTIK GRID ---
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            StatCard(
-                modifier = Modifier.weight(1f),
-                title = "Planned",
-                count = stats.planned.toString(),
-                color = ColorPlanned,
-                icon = Icons.Rounded.Event
-            )
-            StatCard(
-                modifier = Modifier.weight(1f),
-                title = "In Progress",
-                count = stats.inProgress.toString(),
-                color = ColorInProgress,
-                icon = Icons.Rounded.Schedule
-            )
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            StatCard(
-                modifier = Modifier.weight(1f),
-                title = "Completed",
-                count = stats.completed.toString(),
-                color = ColorCompleted,
-                icon = Icons.Rounded.CheckCircle
-            )
-            StatCard(
-                modifier = Modifier.weight(1f),
-                title = "Dropped",
-                count = stats.dropped.toString(),
-                color = ColorDropped,
-                icon = Icons.Rounded.Cancel
-            )
-        }
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        // --- 4. TOMBOL EDIT PROFIL ---
+        // Tombol Logout
         Button(
-            onClick = onEditClick,
-            colors = ButtonDefaults.buttonColors(containerColor = CottonCandyBlue),
-            shape = RoundedCornerShape(50),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp)
+            onClick = { viewModel.logout(); onLogout() },
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFEBEE), contentColor = Color(0xFFD32F2F)),
+            shape = RoundedCornerShape(12.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp).height(50.dp).shadow(0.dp)
         ) {
-            Icon(imageVector = Icons.Default.Edit, contentDescription = null, tint = Color.White)
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(text = "Edit Profil", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            Icon(Icons.Default.Logout, null, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(8.dp))
+            Text("Keluar Akun", fontWeight = FontWeight.Bold)
         }
-
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(Modifier.height(40.dp))
     }
 }
 
-// ... (Kode StatCard dan getCuteAvatarProfil di bawah tetap sama) ...
+// --- FUNGSI ICON (Sama dengan Home) ---
 @Composable
-fun StatCard(
-    modifier: Modifier = Modifier,
-    title: String,
-    count: String,
-    color: Color,
-    icon: ImageVector
-) {
-    Card(
-        modifier = modifier,
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Icon(imageVector = icon, contentDescription = null, tint = color)
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = count, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.Black)
-            Text(text = title, fontSize = 12.sp, color = Color.Gray)
-        }
-    }
-}
-
-@Composable
-fun getCuteAvatarProfil(username: String): ImageVector {
+fun getCuteAvatar(username: String): ImageVector {
     val icons = listOf(
         Icons.Rounded.Face, Icons.Rounded.Pets, Icons.Rounded.Cloud,
         Icons.Rounded.Star, Icons.Rounded.Favorite, Icons.Rounded.Spa,
         Icons.Rounded.AcUnit, Icons.Rounded.AutoAwesome, Icons.Rounded.EmojiNature,
         Icons.Rounded.WbSunny
     )
-    if (username.isEmpty()) return Icons.Rounded.Face
-    val index = abs(username.hashCode()) % icons.size
+    // Jika username kosong, pakai default index 0, jika tidak hitung hash
+    val index = if (username.isEmpty()) 0 else abs(username.hashCode()) % icons.size
     return icons[index]
+}
+
+@Composable
+fun StatCardWide(title: String, count: String, icon: ImageVector, color: Color) {
+    Card(colors = CardDefaults.cardColors(containerColor = Color.White), shape = RoundedCornerShape(16.dp), elevation = CardDefaults.cardElevation(2.dp), modifier = Modifier.fillMaxWidth()) {
+        Row(Modifier.padding(20.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Box(contentAlignment = Alignment.Center, modifier = Modifier.size(48.dp).clip(CircleShape).background(color.copy(0.1f))) {
+                Icon(icon, null, tint = color, modifier = Modifier.size(24.dp))
+            }
+            Spacer(Modifier.width(16.dp))
+            Column { Text(count, fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.Black); Text(title, fontSize = 14.sp, color = Color.Gray) }
+        }
+    }
+}
+
+@Composable
+fun StatCardSmall(modifier: Modifier, title: String, count: String, icon: ImageVector, color: Color, bgColor: Color) {
+    Card(colors = CardDefaults.cardColors(containerColor = Color.White), shape = RoundedCornerShape(16.dp), elevation = CardDefaults.cardElevation(2.dp), modifier = modifier) {
+        Column(Modifier.padding(16.dp).fillMaxWidth()) {
+            Box(contentAlignment = Alignment.Center, modifier = Modifier.size(40.dp).clip(CircleShape).background(bgColor)) {
+                Icon(icon, null, tint = color, modifier = Modifier.size(20.dp))
+            }
+            Spacer(Modifier.height(12.dp)); Text(count, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.Black); Text(title, fontSize = 12.sp, color = Color.Gray)
+        }
+    }
 }

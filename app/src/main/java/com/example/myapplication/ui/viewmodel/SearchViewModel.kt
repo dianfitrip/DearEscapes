@@ -1,6 +1,5 @@
 package com.example.myapplication.ui.viewmodel
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -15,11 +14,11 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 sealed interface SearchUiState {
-    object Idle : SearchUiState
-    object Loading : SearchUiState
-    data class Success(val data: List<EntriHiburan>) : SearchUiState
-    data class Error(val message: String) : SearchUiState
-    object Empty : SearchUiState
+    object Idle : SearchUiState    // Status awal (Kosong / Belum mencari)
+    object Loading : SearchUiState // Sedang memuat
+    data class Success(val data: List<EntriHiburan>) : SearchUiState // Ada data
+    data class Error(val message: String) : SearchUiState // Error
+    object Empty : SearchUiState   // Pencarian dilakukan tapi tidak ada hasil
 }
 
 class SearchViewModel(
@@ -30,71 +29,76 @@ class SearchViewModel(
     var uiState: SearchUiState by mutableStateOf(SearchUiState.Idle)
         private set
 
-    // Query pencarian (berdasarkan Judul)
+    // Query pencarian (Judul)
     var searchQuery by mutableStateOf("")
         private set
 
-    // Genre yang dipilih dari Bottom Sheet
+    // Genre yang dipilih
     var selectedGenre by mutableStateOf<String?>(null)
         private set
 
-    // Query untuk memfilter daftar genre di dalam Bottom Sheet (Lokal)
+    // Query untuk search di dalam list genre (Bottom Sheet)
     var genreSearchQuery by mutableStateOf("")
         private set
 
     private var searchJob: Job? = null
 
     /**
-     * Fungsi ini dipanggil setiap kali user mengetik di TextField Search.
-     * Menggunakan debounce 500ms agar tidak terlalu sering menembak API saat user mengetik.
+     * Dipanggil saat user mengetik di search bar
      */
     fun onSearchQueryChange(newQuery: String) {
         searchQuery = newQuery
 
-        // Batalkan job pencarian sebelumnya jika user masih mengetik
+        // Batalkan pencarian sebelumnya jika user masih mengetik
         searchJob?.cancel()
+
+        // [MODIFIKASI] Jika kolom kosong dan tidak ada genre dipilih,
+        // kembalikan ke tampilan awal (Idle) jangan cari data.
+        if (newQuery.isBlank() && selectedGenre == null) {
+            uiState = SearchUiState.Idle
+            return
+        }
+
+        // Debounce: Tunggu 0.5 detik sebelum request ke server
         searchJob = viewModelScope.launch {
-            delay(500) // Tunggu 0.5 detik setelah user berhenti mengetik
+            delay(500)
             performSearch()
         }
     }
 
     /**
-     * Fungsi untuk memfilter teks pencarian genre di dalam Bottom Sheet
+     * Dipanggil saat user mengetik filter genre di Bottom Sheet
      */
     fun onGenreSearchQueryChange(newQuery: String) {
         genreSearchQuery = newQuery
     }
 
     /**
-     * Fungsi saat genre dipilih atau dibatalkan
+     * Dipanggil saat user memilih Genre
      */
     fun selectGenre(genre: String?) {
-        // Jika genre yang sama diklik lagi, batalkan pilihan (toggle null)
         selectedGenre = if (selectedGenre == genre) null else genre
+        genreSearchQuery = "" // Reset pencarian lokal genre
 
-        // Bersihkan filter pencarian genre lokal
-        genreSearchQuery = ""
-
-        // Langsung jalankan pencarian ke API
-        performSearch()
+        // [MODIFIKASI] Jika genre dimatikan dan search bar juga kosong, kembali ke Idle
+        if (selectedGenre == null && searchQuery.isBlank()) {
+            uiState = SearchUiState.Idle
+        } else {
+            // Jika ada genre atau ada teks, lakukan pencarian
+            performSearch()
+        }
     }
 
     /**
-     * Fungsi Inti untuk mengambil data dari API
+     * Eksekusi pencarian ke API
      */
     fun performSearch() {
         viewModelScope.launch {
             uiState = SearchUiState.Loading
             try {
-                // Ambil User ID dari DataStore/Preferences secara realtime
                 val userId = userPreferences.getUserId.first()
-
                 if (userId != null && userId != 0) {
-                    Log.d("SearchVM", "Requesting - UID: $userId, Q: $searchQuery, G: $selectedGenre")
 
-                    // Memanggil repository
-                    // Pastikan di EntriRepository.kt nama parameternya sesuai
                     val response = repository.searchEntri(
                         userId = userId,
                         query = searchQuery.ifBlank { null },
@@ -109,21 +113,14 @@ class SearchViewModel(
                             uiState = SearchUiState.Success(data)
                         }
                     } else {
-                        Log.e("SearchVM", "API Error: ${response.message()}")
-                        uiState = SearchUiState.Error("Gagal memuat data dari server")
+                        uiState = SearchUiState.Error("Gagal memuat data")
                     }
                 } else {
-                    uiState = SearchUiState.Error("User ID tidak ditemukan. Silakan login ulang.")
+                    uiState = SearchUiState.Error("User tidak ditemukan")
                 }
             } catch (e: Exception) {
-                Log.e("SearchVM", "Exception: ${e.message}")
-                uiState = SearchUiState.Error("Masalah koneksi: ${e.localizedMessage}")
+                uiState = SearchUiState.Error("Koneksi bermasalah: ${e.localizedMessage}")
             }
         }
-    }
-
-    init {
-        // Load data awal (milik user tersebut) saat halaman pertama kali dibuka
-        performSearch()
     }
 }

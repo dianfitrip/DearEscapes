@@ -14,7 +14,7 @@ val CottonCandyBlue = Color(0xFF89CFF0)
 
 val SoftBlueInput = Color(0xFFE3F2FD)
 
-
+val CottonCandyPink = Color(0xFFFFC1CC)
 
 
 val SoftPink = Color(0xFFFFB7B2)
