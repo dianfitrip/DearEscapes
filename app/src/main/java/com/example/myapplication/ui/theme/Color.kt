@@ -21,7 +21,8 @@ val SoftPink = Color(0xFFFFB7B2)
 val SoftBackground = Color(0xFFF5F9FF)
 val WhiteCard = Color(0xFFFFFFFF)
 
-
+val StrongPink = Color(0xFFFF6B81)
+val StarYellow = Color(0xFFFFD700)
 val ColorPlanned = Color(0xFF64B5F6)
 val ColorInProgress = Color(0xFFFFD54F)
 val ColorCompleted = Color(0xFF81C784)
