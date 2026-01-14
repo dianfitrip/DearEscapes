@@ -14,7 +14,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.FilterList // Icon Filter
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.RadioButtonUnchecked
@@ -90,12 +90,14 @@ fun HalamanSearch(
                 // 1. Search Bar (Judul)
                 OutlinedTextField(
                     value = viewModel.searchQuery,
-                    onValueChange = { viewModel.updateQuery(it) },
+                    // PERBAIKAN 1: Menggunakan fungsi onSearchQueryChange
+                    onValueChange = { viewModel.onSearchQueryChange(it) },
                     placeholder = { Text("Cari judul...", color = Color.LightGray) },
                     leadingIcon = { Icon(Icons.Default.Search, null, tint = CottonCandyBlue) },
                     trailingIcon = {
                         if (viewModel.searchQuery.isNotEmpty()) {
-                            IconButton(onClick = { viewModel.updateQuery("") }) {
+                            // PERBAIKAN 2: Reset query menggunakan fungsi yang benar
+                            IconButton(onClick = { viewModel.onSearchQueryChange("") }) {
                                 Icon(Icons.Default.Close, null, tint = Color.Gray)
                             }
                         }
@@ -208,7 +210,8 @@ fun HalamanSearch(
                     // 3. Search Genre (Lokal di dalam Sheet)
                     OutlinedTextField(
                         value = viewModel.genreSearchQuery,
-                        onValueChange = { viewModel.updateGenreSearchQuery(it) },
+                        // PERBAIKAN 3: Menggunakan fungsi onGenreSearchQueryChange
+                        onValueChange = { viewModel.onGenreSearchQueryChange(it) },
                         placeholder = { Text("Cari genre...", color = Color.Gray, fontSize = 14.sp) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
