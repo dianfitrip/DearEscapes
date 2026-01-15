@@ -8,23 +8,28 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
+import com.example.myapplication.data.repository.UserPreferences
 import com.example.myapplication.ui.navigation.NavGraph
 import com.example.myapplication.ui.theme.MyApplicationTheme
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val userPreferences = UserPreferences(this)
+
         setContent {
             MyApplicationTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    // Membuat NavController
                     val navController = rememberNavController()
-
-                    // Memanggil NavGraph yang sudah mengatur rute halaman
-                    NavGraph(navController = navController)
+                    NavGraph(
+                        userPreferences = userPreferences,
+                        navController = navController
+                    )
                 }
             }
         }

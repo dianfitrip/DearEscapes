@@ -1,6 +1,6 @@
 package com.example.myapplication.ui.navigation
 
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -8,6 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.myapplication.data.repository.UserPreferences
 import com.example.myapplication.ui.view.HalamanWelcome
 import com.example.myapplication.ui.view.auth.HalamanLogin
 import com.example.myapplication.ui.view.auth.HalamanRegister
@@ -16,8 +17,11 @@ import com.example.myapplication.ui.view.entry.HalamanEntry
 import com.example.myapplication.ui.view.entry.HalamanUpdate
 import com.example.myapplication.ui.view.main.HalamanHome
 import com.example.myapplication.ui.view.profile.HalamanEditProfile
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
-//DEFINISI DESTINASI
+
+// DEFINISI DESTINASI
 
 interface DestinasiNavigasi {
     val route: String
@@ -69,20 +73,36 @@ object DestinasiEditProfil : DestinasiNavigasi {
 }
 
 
-//PENGELOLA NAVIGASI (NAVGRAPH)
 
 @Composable
 fun NavGraph(
+    userPreferences: UserPreferences,
     navController: NavHostController = rememberNavController(),
     modifier: Modifier = Modifier
 ) {
+    var startDestination by remember { mutableStateOf<String?>(null) }
+
+    //CEK LOGIN SAAT APP START
+    LaunchedEffect(Unit) {
+        val userId = userPreferences.getUserId.first()
+        startDestination = if (userId != null) {
+            DestinasiHome.route
+        } else {
+            DestinasiWelcome.route
+        }
+    }
+
+    //TUNGGU SAMPAI START DESTINATION DITENTUKAN
+    if (startDestination == null) return
+
     NavHost(
         navController = navController,
-        startDestination = DestinasiWelcome.route,
+        startDestination = startDestination!!,
         modifier = modifier
     ) {
-        //HALAMAN WELCOME
-        composable(route = DestinasiWelcome.route) {
+
+        // WELCOME
+        composable(DestinasiWelcome.route) {
             HalamanWelcome(
                 onNextClick = {
                     navController.navigate(DestinasiLogin.route)
@@ -90,8 +110,8 @@ fun NavGraph(
             )
         }
 
-        //HALAMAN REGISTER
-        composable(route = DestinasiRegister.route) {
+        // REGISTER
+        composable(DestinasiRegister.route) {
             HalamanRegister(
                 onLoginClick = {
                     navController.navigate(DestinasiLogin.route)
@@ -99,22 +119,22 @@ fun NavGraph(
             )
         }
 
-        //HALAMAN LOGIN
-        composable(route = DestinasiLogin.route) {
+        // LOGIN
+        composable(DestinasiLogin.route) {
             HalamanLogin(
                 onRegisterClick = {
                     navController.navigate(DestinasiRegister.route)
                 },
                 onLoginSuccess = {
                     navController.navigate(DestinasiHome.route) {
-                        popUpTo(DestinasiWelcome.route) { inclusive = true }
+                        popUpTo(0) { inclusive = true }
                     }
                 }
             )
         }
 
-        //HALAMAN HOME
-        composable(route = DestinasiHome.route) {
+        // HOME
+        composable(DestinasiHome.route) {
             HalamanHome(
                 onDetailClick = { id ->
                     navController.navigate("${DestinasiDetail.route}/$id")
@@ -127,23 +147,20 @@ fun NavGraph(
                         popUpTo(0) { inclusive = true }
                     }
                 },
-                //Callback untuk navigasi ke Edit Profil
                 onEditProfileClick = {
                     navController.navigate(DestinasiEditProfil.route)
                 }
             )
         }
 
-        //HALAMAN ENTRY
-        composable(route = DestinasiEntry.route) {
+        // ENTRY
+        composable(DestinasiEntry.route) {
             HalamanEntry(
-                navigateBack = {
-                    navController.popBackStack()
-                }
+                navigateBack = { navController.popBackStack() }
             )
         }
 
-        //HALAMAN DETAIL
+        // DETAIL
         composable(
             route = DestinasiDetail.routeWithArg,
             arguments = listOf(navArgument(DestinasiDetail.idArg) {
@@ -151,7 +168,6 @@ fun NavGraph(
             })
         ) { backStackEntry ->
             val id = backStackEntry.arguments?.getInt(DestinasiDetail.idArg) ?: 0
-
             HalamanDetail(
                 id = id,
                 navigateBack = { navController.popBackStack() },
@@ -161,7 +177,7 @@ fun NavGraph(
             )
         }
 
-        //HALAMAN UPDATE / EDIT
+        // UPDATE
         composable(
             route = DestinasiUpdate.routeWithArg,
             arguments = listOf(navArgument(DestinasiUpdate.idArg) {
@@ -175,12 +191,10 @@ fun NavGraph(
             )
         }
 
-        //HALAMAN EDIT PROFIL
+        // EDIT PROFIL
         composable(DestinasiEditProfil.route) {
             HalamanEditProfile(
-                navigateBack = {
-                    navController.popBackStack()
-                }
+                navigateBack = { navController.popBackStack() }
             )
         }
     }
