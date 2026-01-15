@@ -9,7 +9,7 @@ import com.example.myapplication.data.model.RegisterResponse
 import com.example.myapplication.data.model.UpdateProfileRequest
 import com.example.myapplication.data.model.StatistikResponse
 import retrofit2.http.Query
-import com.example.myapplication.data.model.EntriResponse //untuk search
+import com.example.myapplication.data.model.EntriResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
@@ -38,7 +38,6 @@ interface ApiService {
     @GET("entertainments/{id}")
     suspend fun getEntertainmentById(@Path("id") id: Int): Response<EntertainmentDetailResponse>
 
-    // Tambahkan di paling bawah interface
     @DELETE("delete-entertainment/{id}")
     suspend fun deleteEntertainment(@Path("id") id: Int): Response<EntertainmentDetailResponse>
 
@@ -48,7 +47,6 @@ interface ApiService {
         @Body request: UpdateProfileRequest
     ): Response<RegisterResponse>
 
-    //Ambil data statistik yang sudah diolah server
     @GET("statistics/{userId}")
     suspend fun getUserStatistics(@Path("userId") userId: Int): Response<StatistikResponse>
 
@@ -59,8 +57,7 @@ interface ApiService {
         @Query("genre") genre: String? = null
     ): Response<EntriResponse>
 
-
-    // @Multipart agar bisa kirim gambar
+    // --- INSERT ---
     @Multipart
     @POST("insert-entertainment")
     suspend fun insertEntertainment(
@@ -74,7 +71,7 @@ interface ApiService {
         @Part photo: MultipartBody.Part?
     ): Response<EntertainmentDetailResponse>
 
-
+    // --- UPDATE (DITAMBAHKAN PARAMETER photo_string) ---
     @Multipart
     @PUT("update-entertainment/{id}")
     suspend fun updateEntertainment(
@@ -85,6 +82,7 @@ interface ApiService {
         @Part("category") category: RequestBody,
         @Part("status") status: RequestBody,
         @Part("rating") rating: RequestBody,
-        @Part photo: MultipartBody.Part?
+        @Part photo: MultipartBody.Part?,
+        @Part("photo_string") photoString: RequestBody? = null // PARAMETER BARU untuk foto lama
     ): Response<EntertainmentDetailResponse>
 }

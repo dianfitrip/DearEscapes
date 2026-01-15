@@ -11,34 +11,20 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.Response
 import java.io.File
 
-// Interface Repository
 interface EntriRepository {
-    // Insert: Menerima file gambar (bisa null)
     suspend fun insertEntri(entriHiburan: EntriHiburan, imageFile: File?)
-
-    // Get All: Mengambil semua data
     suspend fun getEntri(): Response<EntertainmentResponse>
-
-    // Get Detail: Mengambil satu data berdasarkan ID
     suspend fun getEntriById(id: Int): EntriHiburan
-
-    // Update: Mengedit data berdasarkan ID
     suspend fun updateEntri(id: Int, entriHiburan: EntriHiburan, imageFile: File?)
-
-    // Delete: Menghapus data berdasarkan ID
     suspend fun deleteEntri(id: Int)
-
-    // [PERBAIKAN] Deklarasi fungsi search TANPA body {}
     suspend fun searchEntri(userId: Int, query: String?, genre: String?): Response<EntriResponse>
 }
 
-// Implementasi Repository
 class NetworkEntriRepository(
     private val apiService: ApiService
 ) : EntriRepository {
 
     override suspend fun insertEntri(entriHiburan: EntriHiburan, imageFile: File?) {
-        // 1. Buat RequestBody untuk teks
         val userIdRB = entriHiburan.userId.toString().toRequestBody("text/plain".toMediaTypeOrNull())
         val titleRB = entriHiburan.title.toRequestBody("text/plain".toMediaTypeOrNull())
         val descRB = entriHiburan.description.toRequestBody("text/plain".toMediaTypeOrNull())
@@ -47,7 +33,6 @@ class NetworkEntriRepository(
         val statusRB = entriHiburan.status.toRequestBody("text/plain".toMediaTypeOrNull())
         val ratingRB = entriHiburan.rating.toString().toRequestBody("text/plain".toMediaTypeOrNull())
 
-        // 2. Buat MultipartBody.Part untuk gambar (jika ada)
         val photoPart = if (imageFile != null) {
             val requestFile = imageFile.asRequestBody("image/jpeg".toMediaTypeOrNull())
             MultipartBody.Part.createFormData("photo", imageFile.name, requestFile)
@@ -55,7 +40,6 @@ class NetworkEntriRepository(
             null
         }
 
-        // 3. Kirim ke API
         val response = apiService.insertEntertainment(
             userId = userIdRB,
             title = titleRB,
@@ -105,7 +89,14 @@ class NetworkEntriRepository(
         val statusRB = entriHiburan.status.toRequestBody("text/plain".toMediaTypeOrNull())
         val ratingRB = entriHiburan.rating.toString().toRequestBody("text/plain".toMediaTypeOrNull())
 
-        // 2. Cek apakah ada gambar baru yang diupload
+        // 2. Buat RequestBody untuk photo_string (foto lama dari server)
+        val photoStringRB = if (!entriHiburan.photo.isNullOrEmpty()) {
+            entriHiburan.photo.toRequestBody("text/plain".toMediaTypeOrNull())
+        } else {
+            null
+        }
+
+        // 3. Cek apakah ada gambar baru yang diupload
         val photoPart = if (imageFile != null) {
             val requestFile = imageFile.asRequestBody("image/jpeg".toMediaTypeOrNull())
             MultipartBody.Part.createFormData("photo", imageFile.name, requestFile)
@@ -113,7 +104,9 @@ class NetworkEntriRepository(
             null
         }
 
-        // 3. Panggil API Update
+        // 4. Panggil API Update dengan DUA parameter foto:
+        //    - photo: MultipartBody.Part? (foto baru sebagai file)
+        //    - photo_string: RequestBody? (string path foto lama)
         val response = apiService.updateEntertainment(
             id = id,
             title = titleRB,
@@ -122,15 +115,16 @@ class NetworkEntriRepository(
             category = categoryRB,
             status = statusRB,
             rating = ratingRB,
-            photo = photoPart
+            photo = photoPart,
+            photoString = photoStringRB
         )
 
-        // 4. Cek Error HTTP
+        // 5. Cek Error HTTP
         if (!response.isSuccessful) {
             throw Exception("Gagal Update. Kode: ${response.code()}")
         }
 
-        // 5. Cek Error dari Body API
+        // 6. Cek Error dari Body API
         val body = response.body()
         if (body != null && !body.success) {
             throw Exception(body.message)
@@ -150,7 +144,6 @@ class NetworkEntriRepository(
         }
     }
 
-    // [PERBAIKAN] Implementasi fungsi search ditaruh di sini (Override)
     override suspend fun searchEntri(userId: Int, query: String?, genre: String?): Response<EntriResponse> {
         return apiService.searchEntertainments(userId, query, genre)
     }

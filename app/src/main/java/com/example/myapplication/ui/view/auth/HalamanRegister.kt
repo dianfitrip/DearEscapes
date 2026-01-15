@@ -28,7 +28,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.myapplication.ui.theme.* // Import Color.kt
+import com.example.myapplication.ui.theme.*
 import com.example.myapplication.ui.viewmodel.RegisterViewModel
 
 @Composable
@@ -46,24 +46,31 @@ fun HalamanRegister(
     var confirmPassword by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
-    // State Error Validasi
+    // State Error
     var isNameError by remember { mutableStateOf(false) }
-    var isEmailError by remember { mutableStateOf(false) } // [BARU] Error Email
-    var isPasswordLengthError by remember { mutableStateOf(false) }
+    var isEmailError by remember { mutableStateOf(false) }
 
-    // Observe Status
+    // ===== PASSWORD VALIDATION (BARU) =====
+    val isPasswordLengthError = password.isNotEmpty() && password.length != 6
+    val isPasswordNoLetter = password.isNotEmpty() && !password.any { it.isLetter() }
+    val isPasswordNoDigit = password.isNotEmpty() && !password.any { it.isDigit() }
+    val isPasswordInvalid = isPasswordLengthError || isPasswordNoLetter || isPasswordNoDigit
+
     val registerStatus = viewModel.registerStatus
 
     LaunchedEffect(registerStatus) {
         if (registerStatus.contains("Berhasil")) {
-            Toast.makeText(context, "Hore! Akun berhasil dibuat. Silakan Login.", Toast.LENGTH_LONG).show()
+            Toast.makeText(
+                context,
+                "Hore! Akun berhasil dibuat. Silakan Login.",
+                Toast.LENGTH_LONG
+            ).show()
             onLoginClick()
         } else if (registerStatus.contains("Gagal") || registerStatus.contains("Error")) {
             Toast.makeText(context, registerStatus, Toast.LENGTH_SHORT).show()
         }
     }
 
-    // --- LAYOUT UTAMA ---
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -77,12 +84,6 @@ fun HalamanRegister(
                 )
             )
     ) {
-        // --- DEKORASI ---
-        DecorationItemReg(icon = Icons.Filled.Face, color = SoftBlueInput, size = 120.dp, modifier = Modifier.align(Alignment.TopStart).offset(x = (-30).dp, y = 20.dp))
-        DecorationItemReg(icon = Icons.Filled.Star, color = CottonCandyBlue.copy(alpha = 0.3f), size = 50.dp, modifier = Modifier.align(Alignment.TopEnd).offset(x = (-20).dp, y = 80.dp))
-        DecorationItemReg(icon = Icons.Filled.Favorite, color = SoftBlueInput, size = 40.dp, modifier = Modifier.align(Alignment.BottomStart).offset(x = 30.dp, y = (-50).dp))
-
-        // --- KARTU FORM ---
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -92,181 +93,209 @@ fun HalamanRegister(
             verticalArrangement = Arrangement.Center
         ) {
 
-            Spacer(modifier = Modifier.height(20.dp))
-
             Card(
                 colors = CardDefaults.cardColors(containerColor = WhiteCard),
                 shape = RoundedCornerShape(24.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+                elevation = CardDefaults.cardElevation(8.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
                     modifier = Modifier.padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+
                     Text(
-                        text = "Buat Akun Baru",
+                        "Buat Akun Baru",
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
                         color = CottonCandyBlue
                     )
+
                     Text(
-                        text = "Mulai jejak hiburanmu sekarang!",
+                        "Mulai jejak hiburanmu sekarang!",
                         fontSize = 13.sp,
                         color = Color.Gray,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.padding(bottom = 24.dp)
                     )
 
-                    // 1. INPUT NAMA (Validasi Karakter)
+                    // ===== NAMA =====
                     OutlinedTextField(
                         value = name,
-                        onValueChange = { input ->
-                            name = input
-                            isNameError = !input.all { it.isLetter() || it.isWhitespace() }
+                        onValueChange = {
+                            name = it
+                            isNameError = !it.all { ch -> ch.isLetter() || ch.isWhitespace() }
                         },
-                        label = { Text("Nama Lengkap", fontSize = 14.sp) },
-                        leadingIcon = { Icon(Icons.Filled.Person, null, tint = if (isNameError) ColorDropped else CottonCandyBlue) },
+                        label = { Text("Nama Lengkap") },
+                        leadingIcon = {
+                            Icon(
+                                Icons.Default.Person,
+                                null,
+                                tint = if (isNameError) ColorDropped else CottonCandyBlue
+                            )
+                        },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp),
-                        colors = cuteInputColorsReg(isError = isNameError),
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                        colors = cuteInputColorsReg(isNameError),
                         isError = isNameError,
+                        singleLine = true,
                         supportingText = {
                             if (isNameError) {
-                                Text("Nama tidak boleh angka/simbol!", color = ColorDropped, fontSize = 12.sp)
+                                Text(
+                                    "Nama tidak boleh mengandung angka atau simbol",
+                                    color = ColorDropped,
+                                    fontSize = 12.sp
+                                )
                             }
-                        },
-                        trailingIcon = {
-                            if (isNameError) Icon(Icons.Filled.Warning, null, tint = ColorDropped)
                         }
                     )
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(Modifier.height(12.dp))
 
-                    // 2. INPUT EMAIL (Validasi Format Real-time)
+                    // ===== EMAIL =====
                     OutlinedTextField(
                         value = email,
                         onValueChange = {
                             email = it
-                            // Validasi: Error jika tidak kosong DAN format salah
-                            isEmailError = it.isNotEmpty() && !Patterns.EMAIL_ADDRESS.matcher(it).matches()
+                            isEmailError =
+                                it.isNotEmpty() && !Patterns.EMAIL_ADDRESS.matcher(it).matches()
                         },
-                        label = { Text("Email", fontSize = 14.sp) },
-                        leadingIcon = { Icon(Icons.Filled.Email, null, tint = if (isEmailError) ColorDropped else CottonCandyBlue) },
+                        label = { Text("Email") },
+                        leadingIcon = {
+                            Icon(
+                                Icons.Default.Email,
+                                null,
+                                tint = if (isEmailError) ColorDropped else CottonCandyBlue
+                            )
+                        },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
-                        colors = cuteInputColorsReg(isError = isEmailError), // Warna merah jika error
-                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Email,
+                            imeAction = ImeAction.Next
+                        ),
+                        colors = cuteInputColorsReg(isEmailError),
                         isError = isEmailError,
+                        singleLine = true,
                         supportingText = {
                             if (isEmailError) {
-                                Text("Format email tidak valid! contoh x@gmail.com", color = ColorDropped, fontSize = 12.sp)
+                                Text(
+                                    "Format email tidak valid (contoh: x@gmail.com)",
+                                    color = ColorDropped,
+                                    fontSize = 12.sp
+                                )
                             }
-                        },
-                        trailingIcon = {
-                            if (isEmailError) Icon(Icons.Filled.Warning, null, tint = ColorDropped)
                         }
                     )
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(Modifier.height(12.dp))
 
-                    // 3. INPUT PASSWORD (Max 6 Karakter)
-                    isPasswordLengthError = password.isNotEmpty() && password.length < 6
-
+                    // ===== PASSWORD (KOMBINASI) =====
                     OutlinedTextField(
                         value = password,
                         onValueChange = {
-                            if (it.length <= 6) {
-                                password = it
-                            }
+                            if (it.length <= 6) password = it
                         },
-                        label = { Text("Password (6 Karakter)", fontSize = 14.sp) },
-                        leadingIcon = { Icon(Icons.Filled.Lock, null, tint = if (isPasswordLengthError) ColorDropped else CottonCandyBlue) },
+                        label = { Text("Password (6 Karakter)") },
+                        leadingIcon = {
+                            Icon(
+                                Icons.Default.Lock,
+                                null,
+                                tint = if (isPasswordInvalid) ColorDropped else CottonCandyBlue
+                            )
+                        },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp),
-                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Next),
+                        visualTransformation = if (passwordVisible)
+                            VisualTransformation.None
+                        else
+                            PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Password,
+                            imeAction = ImeAction.Next
+                        ),
                         trailingIcon = {
                             IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                                Icon(imageVector = Icons.Filled.Info, contentDescription = null, tint = Color.Gray)
+                                Icon(Icons.Default.Info, null, tint = Color.Gray)
                             }
                         },
-                        colors = cuteInputColorsReg(isError = isPasswordLengthError),
+                        colors = cuteInputColorsReg(isPasswordInvalid),
+                        isError = isPasswordInvalid,
                         singleLine = true,
-                        isError = isPasswordLengthError,
                         supportingText = {
-                            if (isPasswordLengthError) {
-                                Text("Password harus 6 karakter!", color = ColorDropped, fontSize = 12.sp)
+                            when {
+                                isPasswordLengthError ->
+                                    Text("Password harus tepat 6 karakter", color = ColorDropped, fontSize = 12.sp)
+                                isPasswordNoLetter ->
+                                    Text("Password harus mengandung huruf", color = ColorDropped, fontSize = 12.sp)
+                                isPasswordNoDigit ->
+                                    Text("Password harus mengandung angka", color = ColorDropped, fontSize = 12.sp)
                             }
                         }
                     )
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(Modifier.height(12.dp))
 
-                    // 4. KONFIRMASI PASSWORD
-                    val isPasswordMatch = password.isNotEmpty() && confirmPassword.isNotEmpty() && password == confirmPassword
-                    val isPasswordMismatch = password.isNotEmpty() && confirmPassword.isNotEmpty() && password != confirmPassword
+                    // ===== KONFIRMASI PASSWORD =====
+                    val isPasswordMatch =
+                        password.isNotEmpty() && confirmPassword.isNotEmpty() && password == confirmPassword
+                    val isPasswordMismatch =
+                        password.isNotEmpty() && confirmPassword.isNotEmpty() && password != confirmPassword
 
                     OutlinedTextField(
                         value = confirmPassword,
                         onValueChange = {
-                            if (it.length <= 6) {
-                                confirmPassword = it
-                            }
+                            if (it.length <= 6) confirmPassword = it
                         },
-                        label = { Text("Ulangi Password", fontSize = 14.sp) },
-                        leadingIcon = { Icon(Icons.Filled.Lock, null, tint = CottonCandyBlue) },
+                        label = { Text("Ulangi Password") },
+                        leadingIcon = { Icon(Icons.Default.Lock, null, tint = CottonCandyBlue) },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp),
                         visualTransformation = PasswordVisualTransformation(),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
-                        colors = cuteInputColorsReg(),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Password,
+                            imeAction = ImeAction.Done
+                        ),
+                        colors = cuteInputColorsReg(isPasswordMismatch),
                         singleLine = true,
                         isError = isPasswordMismatch,
                         trailingIcon = {
-                            if (isPasswordMatch) Icon(Icons.Filled.CheckCircle, null, tint = ColorCompleted)
-                            if (isPasswordMismatch) Icon(Icons.Filled.Warning, null, tint = ColorDropped)
+                            if (isPasswordMatch)
+                                Icon(Icons.Default.CheckCircle, null, tint = ColorCompleted)
+                            if (isPasswordMismatch)
+                                Icon(Icons.Default.Warning, null, tint = ColorDropped)
                         }
                     )
 
                     if (isPasswordMismatch) {
                         Text(
-                            text = "Password tidak cocok!",
+                            "Password tidak cocok!",
                             color = ColorDropped,
                             fontSize = 12.sp,
-                            modifier = Modifier.align(Alignment.Start).padding(start = 8.dp, top = 4.dp)
+                            modifier = Modifier
+                                .align(Alignment.Start)
+                                .padding(start = 8.dp, top = 4.dp)
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(32.dp))
+                    Spacer(Modifier.height(32.dp))
 
-                    // --- TOMBOL DAFTAR ---
+                    // ===== BUTTON DAFTAR =====
                     Button(
                         onClick = {
-                            // Cek Kelengkapan & Validasi
-                            if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
-                                Toast.makeText(context, "Lengkapi semua data dulu ya!", Toast.LENGTH_SHORT).show()
-                                return@Button
-                            }
-                            if (isNameError) {
-                                Toast.makeText(context, "Nama mengandung simbol/angka!", Toast.LENGTH_SHORT).show()
-                                return@Button
-                            }
-                            if (isEmailError) {
-                                Toast.makeText(context, "Format email salah!", Toast.LENGTH_SHORT).show()
-                                return@Button
-                            }
-                            if (password.length != 6) {
-                                Toast.makeText(context, "Password wajib 6 karakter!", Toast.LENGTH_SHORT).show()
-                                return@Button
-                            }
-                            if (password == confirmPassword) {
-                                viewModel.register(name, email, password)
-                            } else {
-                                Toast.makeText(context, "Password tidak sama!", Toast.LENGTH_SHORT).show()
+                            when {
+                                name.isEmpty() || email.isEmpty() || password.isEmpty() ->
+                                    Toast.makeText(context, "Lengkapi semua data!", Toast.LENGTH_SHORT).show()
+                                isNameError ->
+                                    Toast.makeText(context, "Nama tidak valid!", Toast.LENGTH_SHORT).show()
+                                isEmailError ->
+                                    Toast.makeText(context, "Email tidak valid!", Toast.LENGTH_SHORT).show()
+                                isPasswordInvalid ->
+                                    Toast.makeText(context, "Password harus 6 karakter dan kombinasi huruf & angka!", Toast.LENGTH_SHORT).show()
+                                password != confirmPassword ->
+                                    Toast.makeText(context, "Password tidak sama!", Toast.LENGTH_SHORT).show()
+                                else ->
+                                    viewModel.register(name, email, password)
                             }
                         },
                         modifier = Modifier
@@ -278,41 +307,64 @@ fun HalamanRegister(
                         enabled = registerStatus != "Loading..."
                     ) {
                         if (registerStatus == "Loading...") {
-                            CircularProgressIndicator(color = WhiteCard, modifier = Modifier.size(24.dp))
+                            CircularProgressIndicator(
+                                color = WhiteCard,
+                                modifier = Modifier.size(24.dp)
+                            )
                         } else {
-                            Text(text = "Daftar Sekarang", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                            Text(
+                                "Daftar Sekarang",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold
+                            )
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(Modifier.height(16.dp))
 
-                    // Link Login
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text("Sudah punya akun?", fontSize = 12.sp, color = Color.Gray)
                         TextButton(onClick = onLoginClick) {
-                            Text("Masuk disini", color = CottonCandyBlue, fontWeight = FontWeight.Bold)
+                            Text(
+                                "Masuk disini",
+                                color = CottonCandyBlue,
+                                fontWeight = FontWeight.Bold
+                            )
                         }
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(50.dp))
+            Spacer(Modifier.height(50.dp))
         }
     }
 }
 
-@Composable
-fun cuteInputColorsReg(isError: Boolean = false) = OutlinedTextFieldDefaults.colors(
-    focusedBorderColor = if (isError) ColorDropped else CottonCandyBlue,
-    unfocusedBorderColor = if (isError) ColorDropped else Color.LightGray,
-    focusedLabelColor = if (isError) ColorDropped else CottonCandyBlue,
-    focusedContainerColor = SoftBackground,
-    unfocusedContainerColor = SoftBackground,
-    errorBorderColor = ColorDropped,
-    errorLabelColor = ColorDropped,
-    errorCursorColor = ColorDropped
-)
+/* ===== WARNA INPUT ===== */
 
 @Composable
-fun DecorationItemReg(icon: ImageVector, color: Color, size: androidx.compose.ui.unit.Dp, modifier: Modifier = Modifier) {
-    Icon(imageVector = icon, contentDescription = null, tint = color, modifier = modifier.size(size))
+fun cuteInputColorsReg(isError: Boolean = false) =
+    OutlinedTextFieldDefaults.colors(
+        focusedBorderColor = if (isError) ColorDropped else CottonCandyBlue,
+        unfocusedBorderColor = if (isError) ColorDropped else Color.LightGray,
+        focusedLabelColor = if (isError) ColorDropped else CottonCandyBlue,
+        focusedContainerColor = SoftBackground,
+        unfocusedContainerColor = SoftBackground,
+        errorBorderColor = ColorDropped,
+        errorLabelColor = ColorDropped,
+        errorCursorColor = ColorDropped
+    )
+
+@Composable
+fun DecorationItemReg(
+    icon: ImageVector,
+    color: Color,
+    size: androidx.compose.ui.unit.Dp,
+    modifier: Modifier = Modifier
+) {
+    Icon(
+        imageVector = icon,
+        contentDescription = null,
+        tint = color,
+        modifier = modifier.size(size)
+    )
 }
