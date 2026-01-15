@@ -22,7 +22,7 @@ class EditProfileViewModel(
     init {
         loadCurrentData()
     }
-
+    //mengambil data profil pengguna yang tersimpan di UserPreferences (DataStore) lalu mengisi state UI awal (username & email)
     private fun loadCurrentData() {
         viewModelScope.launch {
             val username = userPreferences.getUsername.first() ?: ""

@@ -23,7 +23,7 @@ class LoginViewModel(private val userPreferences: UserPreferences) : ViewModel()
         }
 
         // 2. Cek Panjang Password
-        if (passInput.length != 6) { // Sesuaikan validasi jika perlu (misal min 6)
+        if (passInput.length != 6) {
             loginStatus = "Gagal: panjang password harus 6"
             return
         }
@@ -44,7 +44,7 @@ class LoginViewModel(private val userPreferences: UserPreferences) : ViewModel()
                             userPreferences.saveSession(
                                 userId = user.id,
                                 username = user.username,
-                                email = email // Menambahkan email ke session
+                                email = email
                             )
 
                             loginStatus = "Berhasil: Selamat datang ${user.username}"

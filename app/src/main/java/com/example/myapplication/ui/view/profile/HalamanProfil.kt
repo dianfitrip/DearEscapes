@@ -54,8 +54,7 @@ fun HalamanProfil(
             .verticalScroll(scrollState)
     ) {
 
-//header
-
+        //header
         Box(modifier = Modifier.fillMaxWidth().height(280.dp)) {
             Box(
                 modifier = Modifier
@@ -132,7 +131,7 @@ fun HalamanProfil(
             }
         }
 
-//rangkuman data
+        //rangkuman data
 
         Column(modifier = Modifier.padding(horizontal = 24.dp)) {
             Text(
@@ -197,8 +196,7 @@ fun HalamanProfil(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-//logout button
-
+        //logout button
         Button(
             onClick = { showLogoutDialog = true },
             colors = ButtonDefaults.buttonColors(
@@ -280,6 +278,7 @@ fun getCuteAvatar(username: String): ImageVector {
     return icons[index]
 }
 
+//menampilkan kartu statistik berbentuk horizontal (lebar penuh)berisi ikon, angka statistik, dan judul keterangan
 @Composable
 fun StatCardWide(
     title: String,
@@ -315,6 +314,7 @@ fun StatCardWide(
     }
 }
 
+//kartu statistik versi kecil yang menampilkan ikon berwarna, nilai statistik, dan judul singkat
 @Composable
 fun StatCardSmall(
     modifier: Modifier,

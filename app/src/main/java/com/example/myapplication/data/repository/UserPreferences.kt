@@ -17,8 +17,8 @@ class UserPreferences(private val context: Context) {
     companion object {
         private val USER_ID_KEY = intPreferencesKey("user_id")
         private val USERNAME_KEY = stringPreferencesKey("username")
-        private val USER_TOKEN_KEY = stringPreferencesKey("user_token") // Tetap ada (dari kode lama)
-        private val EMAIL_KEY = stringPreferencesKey("email")           // Tambahan (dari modifikasi)
+        private val USER_TOKEN_KEY = stringPreferencesKey("user_token")
+        private val EMAIL_KEY = stringPreferencesKey("email")
     }
 
     // 1. Ambil User ID
@@ -33,19 +33,18 @@ class UserPreferences(private val context: Context) {
             preferences[USERNAME_KEY] ?: "User"
         }
 
-    // 3. Ambil Email (Fitur Baru)
+    // 3. Ambil Email
     val getEmail: Flow<String> = context.dataStore.data
         .map { preferences ->
-            preferences[EMAIL_KEY] ?: "user@example.com" // Default value jika kosong
+            preferences[EMAIL_KEY] ?: "user@example.com"
         }
 
-    // 4. Simpan Session (Gabungan)
-    // Sekarang WAJIB menerima email. Token tetap opsional agar fleksibel.
+    // 4. Simpan Session
     suspend fun saveSession(userId: Int, username: String, email: String, token: String = "") {
         context.dataStore.edit { preferences ->
             preferences[USER_ID_KEY] = userId
             preferences[USERNAME_KEY] = username
-            preferences[EMAIL_KEY] = email // Simpan Email
+            preferences[EMAIL_KEY] = email
 
             // Simpan Token jika ada
             if (token.isNotEmpty()) {
@@ -54,7 +53,7 @@ class UserPreferences(private val context: Context) {
         }
     }
 
-    // 5. Logout (Hapus Data)
+    // 5. Logout
     suspend fun clearSession() {
         context.dataStore.edit { preferences ->
             preferences.clear()

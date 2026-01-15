@@ -18,7 +18,7 @@ class RegisterViewModel : ViewModel() {
 
     fun register(nama: String, email: String, pass: String) {
 
-        // --- VALIDASI REGISTER ---
+        //VALIDASI REGISTER
 
         // 1. Validasi Nama: Tidak boleh ada angka
         if (nama.any { it.isDigit() }) {
@@ -26,7 +26,7 @@ class RegisterViewModel : ViewModel() {
             return
         }
 
-        // 2. Validasi Email: Format email & harus @gmail.com
+        // 2. Validasi Email: Format email & harus x@gmail.com
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches() || !email.endsWith("@gmail.com")) {
             registerStatus = "Gagal: Email harus format x@gmail.com"
             return
@@ -38,7 +38,7 @@ class RegisterViewModel : ViewModel() {
             return
         }
 
-        // --- REQUEST API ---
+        //REQUEST API
         viewModelScope.launch {
             try {
                 registerStatus = "Loading..."

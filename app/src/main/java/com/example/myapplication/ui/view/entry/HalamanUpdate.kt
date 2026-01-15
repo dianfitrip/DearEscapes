@@ -157,7 +157,7 @@ fun HalamanUpdate(
         }
     }
 
-    // =========== PERBAIKAN DIALOG ===========
+    // DIALOG waktu simpen data abis update
     if (showConfirmDialog) {
         AlertDialog(
             onDismissRequest = { showConfirmDialog = false },
@@ -170,7 +170,7 @@ fun HalamanUpdate(
                 )
             },
             text = {
-                // HANYA TAMPILKAN PESAN SEDERHANA
+                // TAMPILKAN PESAN
                 Text(
                     text = "Apakah kamu yakin ingin mengubah data hiburan ini?",
                     fontSize = 16.sp

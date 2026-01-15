@@ -50,7 +50,7 @@ fun HalamanRegister(
     var isNameError by remember { mutableStateOf(false) }
     var isEmailError by remember { mutableStateOf(false) }
 
-    // ===== PASSWORD VALIDATION (BARU) =====
+    //PASSWORD VALIDATION
     val isPasswordLengthError = password.isNotEmpty() && password.length != 6
     val isPasswordNoLetter = password.isNotEmpty() && !password.any { it.isLetter() }
     val isPasswordNoDigit = password.isNotEmpty() && !password.any { it.isDigit() }
@@ -119,7 +119,7 @@ fun HalamanRegister(
                         modifier = Modifier.padding(bottom = 24.dp)
                     )
 
-                    // ===== NAMA =====
+                    //NAMA
                     OutlinedTextField(
                         value = name,
                         onValueChange = {
@@ -152,7 +152,7 @@ fun HalamanRegister(
 
                     Spacer(Modifier.height(12.dp))
 
-                    // ===== EMAIL =====
+                    //EMAIL
                     OutlinedTextField(
                         value = email,
                         onValueChange = {
@@ -190,7 +190,7 @@ fun HalamanRegister(
 
                     Spacer(Modifier.height(12.dp))
 
-                    // ===== PASSWORD (KOMBINASI) =====
+                    //PASSWORD KOMBINASI
                     OutlinedTextField(
                         value = password,
                         onValueChange = {
@@ -236,7 +236,7 @@ fun HalamanRegister(
 
                     Spacer(Modifier.height(12.dp))
 
-                    // ===== KONFIRMASI PASSWORD =====
+                    //KONFIRMASI PASSWORD
                     val isPasswordMatch =
                         password.isNotEmpty() && confirmPassword.isNotEmpty() && password == confirmPassword
                     val isPasswordMismatch =
@@ -280,7 +280,7 @@ fun HalamanRegister(
 
                     Spacer(Modifier.height(32.dp))
 
-                    // ===== BUTTON DAFTAR =====
+                    //BUTTON DAFTAR
                     Button(
                         onClick = {
                             when {
@@ -339,7 +339,7 @@ fun HalamanRegister(
     }
 }
 
-/* ===== WARNA INPUT ===== */
+//Mengatur warna dan gaya OutlinedTextField pada halaman regis, termasuk kondisi normal dan error.
 
 @Composable
 fun cuteInputColorsReg(isError: Boolean = false) =
@@ -353,18 +353,3 @@ fun cuteInputColorsReg(isError: Boolean = false) =
         errorLabelColor = ColorDropped,
         errorCursorColor = ColorDropped
     )
-
-@Composable
-fun DecorationItemReg(
-    icon: ImageVector,
-    color: Color,
-    size: androidx.compose.ui.unit.Dp,
-    modifier: Modifier = Modifier
-) {
-    Icon(
-        imageVector = icon,
-        contentDescription = null,
-        tint = color,
-        modifier = modifier.size(size)
-    )
-}

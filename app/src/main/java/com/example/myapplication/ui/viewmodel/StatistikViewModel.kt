@@ -5,14 +5,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.myapplication.data.apiservice.RetrofitClient // Pastikan pakai RetrofitClient langsung atau lewat Repository
+import com.example.myapplication.data.apiservice.RetrofitClient
 import com.example.myapplication.data.model.StatistikDataModel
 import com.example.myapplication.data.repository.UserPreferences
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-// Kita gunakan model dari data/model/Statistik.kt saja biar konsisten
-// Hapus data class StatistikData manual jika sebelumnya ada disini
 
 sealed interface StatistikUiState {
     object Loading : StatistikUiState
@@ -22,7 +20,6 @@ sealed interface StatistikUiState {
 
 class StatistikViewModel(
     private val userPreferences: UserPreferences
-    // Repository bisa dihapus jika kita tembak API langsung disini atau buat fungsi baru di repository
 ) : ViewModel() {
 
     var uiState: StatistikUiState by mutableStateOf(StatistikUiState.Loading)
@@ -38,8 +35,6 @@ class StatistikViewModel(
                     return@launch
                 }
 
-                // Panggil Endpoint Baru
-                // (Asumsi kamu memanggil ApiService lewat RetrofitClient.instance)
                 val response = RetrofitClient.instance.getUserStatistics(currentUserId)
 
                 if (response.isSuccessful && response.body()?.success == true) {

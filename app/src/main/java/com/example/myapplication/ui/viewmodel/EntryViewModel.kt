@@ -11,7 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.myapplication.data.model.EntriHiburan
 import com.example.myapplication.data.repository.EntriRepository
 import com.example.myapplication.data.repository.UserPreferences
-import com.example.myapplication.utils.FileUtils
+import com.example.myapplication.ui.utils.FileUtils
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.io.File
@@ -32,7 +32,7 @@ class EntryViewModel(
         return uiState.title.isNotBlank() && uiState.description.isNotBlank()
     }
 
-    // FUNGSI INI TELAH DIMODIFIKASI
+    // menyimpan data hiburan baru ke server
     fun saveEntry(context: Context, navigateBack: () -> Unit) {
         viewModelScope.launch {
             // 1. Cek Validasi dan Tampilkan Toast jika Gagal
@@ -73,14 +73,14 @@ class EntryViewModel(
 
                 Log.d("EntryViewModel", "Simpan Berhasil untuk User ID: $currentUserId")
 
-                // [TAMBAHAN] Toast Sukses
+                //Toast Sukses
                 Toast.makeText(context, "Berhasil Menambahkan Hiburan!", Toast.LENGTH_SHORT).show()
 
-                // 6. Kembali ke halaman sebelumnya
+                // Kembali ke halaman sebelumnya
                 navigateBack()
 
             } catch (e: Exception) {
-                // [TAMBAHAN] Toast Error
+                //Toast Error
                 Log.e("EntryViewModel", "Simpan Gagal: ${e.message}")
                 e.printStackTrace()
                 Toast.makeText(context, "Gagal menyimpan: ${e.message}", Toast.LENGTH_LONG).show()
@@ -89,7 +89,7 @@ class EntryViewModel(
     }
 }
 
-// --- DATA CLASSES & MAPPER ---
+
 
 data class EntryUiState(
     val detailEntri: DetailEntri = DetailEntri(),

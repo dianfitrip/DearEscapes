@@ -1,5 +1,3 @@
-// File: com/example/myapplication/data/model/EntriHiburan.kt
-
 package com.example.myapplication.data.model
 
 import com.google.gson.annotations.SerializedName
@@ -24,10 +22,9 @@ data class EntertainmentResponse(
     val data: List<EntriHiburan>
 )
 
-// --- TAMBAHKAN INI ---
 // Response untuk INSERT/UPDATE (Single Data) - Bukan List
 data class EntertainmentDetailResponse(
     val success: Boolean,
     val message: String,
-    val data: EntriHiburan // Perhatikan: Tidak pakai List<>
+    val data: EntriHiburan
 )

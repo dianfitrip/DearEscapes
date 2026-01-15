@@ -23,7 +23,6 @@ import com.example.myapplication.ui.viewmodel.PenyediaViewModel
 import com.example.myapplication.ui.view.profile.HalamanProfil
 import com.example.myapplication.ui.view.search.HalamanSearch
 import com.example.myapplication.ui.view.statistic.HalamanStatistik
-// IMPORT WIDGET YANG BARU KITA BUAT
 import com.example.myapplication.ui.view.widget.CottonCandyBottomBar
 import com.example.myapplication.ui.view.widget.HomeHeader
 import com.example.myapplication.ui.view.widget.PosterCard
@@ -48,12 +47,12 @@ fun HalamanHome(
     Scaffold(
         topBar = {
             if (activeMenu == "Home") {
-                // Sekarang kode header lebih ringkas
+                // Header
                 HomeHeader(username = username)
             }
         },
         bottomBar = {
-            // Kode bottom bar juga tinggal panggil
+            // bottom bar (menu)
             CottonCandyBottomBar(
                 currentMenu = activeMenu,
                 onMenuSelected = { selected -> activeMenu = selected }
@@ -89,8 +88,7 @@ fun HalamanHome(
     }
 }
 
-// Content Home tetap di sini karena mengandung logika UI State (Loading/Success/Error)
-// Tapi item card-nya sudah dipisah
+//menampilkan konten halaman Home berdasarkan state aplikasi, termasuk loading, daftar hiburan, kondisi kosong, dan penanganan error
 @Composable
 fun ContentHome(
     uiState: HomeUiState,
@@ -134,17 +132,6 @@ fun ContentHome(
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-fun PlaceholderScreen(text: String) {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Icon(Icons.Default.BrokenImage, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(48.dp))
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text, color = Color.Gray)
         }
     }
 }

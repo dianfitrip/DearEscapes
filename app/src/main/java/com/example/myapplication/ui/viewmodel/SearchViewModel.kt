@@ -43,16 +43,15 @@ class SearchViewModel(
 
     private var searchJob: Job? = null
 
-    /**
-     * Dipanggil saat user mengetik di search bar
-     */
+    //Dipanggil saat user mengetik di search bar
+
     fun onSearchQueryChange(newQuery: String) {
         searchQuery = newQuery
 
         // Batalkan pencarian sebelumnya jika user masih mengetik
         searchJob?.cancel()
 
-        // [MODIFIKASI] Jika kolom kosong dan tidak ada genre dipilih,
+        // Jika kolom kosong dan tidak ada genre dipilih,
         // kembalikan ke tampilan awal (Idle) jangan cari data.
         if (newQuery.isBlank() && selectedGenre == null) {
             uiState = SearchUiState.Idle
@@ -66,21 +65,17 @@ class SearchViewModel(
         }
     }
 
-    /**
-     * Dipanggil saat user mengetik filter genre di Bottom Sheet
-     */
+    //Dipanggil saat user mengetik filter genre di Bottom Sheet
     fun onGenreSearchQueryChange(newQuery: String) {
         genreSearchQuery = newQuery
     }
 
-    /**
-     * Dipanggil saat user memilih Genre
-     */
+    //Dipanggil saat user memilih Genre
     fun selectGenre(genre: String?) {
         selectedGenre = if (selectedGenre == genre) null else genre
         genreSearchQuery = "" // Reset pencarian lokal genre
 
-        // [MODIFIKASI] Jika genre dimatikan dan search bar juga kosong, kembali ke Idle
+        //Jika genre dimatikan dan search bar juga kosong, kembali ke Idle
         if (selectedGenre == null && searchQuery.isBlank()) {
             uiState = SearchUiState.Idle
         } else {
@@ -89,9 +84,7 @@ class SearchViewModel(
         }
     }
 
-    /**
-     * Eksekusi pencarian ke API
-     */
+    //Eksekusi pencarian ke API
     fun performSearch() {
         viewModelScope.launch {
             uiState = SearchUiState.Loading

@@ -1,5 +1,4 @@
-// File: utils/FileUtils.kt
-package com.example.myapplication.utils
+package com.example.myapplication.ui.utils
 
 import android.content.Context
 import android.net.Uri
@@ -7,6 +6,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
 
+//mengonversi URI gambar dari Android (galeri/kamera) menjadi File fisik agar dapat dikirim ke backend melalui upload multipart Retrofit
 object FileUtils {
     fun getFileFromUri(context: Context, uri: Uri): File? {
         return try {

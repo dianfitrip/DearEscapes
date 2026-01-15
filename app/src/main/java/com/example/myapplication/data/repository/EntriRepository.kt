@@ -12,18 +12,26 @@ import retrofit2.Response
 import java.io.File
 
 interface EntriRepository {
+    // Insert data hiburan baru (dengan atau tanpa gambar)
     suspend fun insertEntri(entriHiburan: EntriHiburan, imageFile: File?)
+    // Ambil semua data hiburan
     suspend fun getEntri(): Response<EntertainmentResponse>
+    // Ambil detail hiburan berdasarkan ID
     suspend fun getEntriById(id: Int): EntriHiburan
+    // Update data hiburan (dengan atau tanpa gambar baru)
     suspend fun updateEntri(id: Int, entriHiburan: EntriHiburan, imageFile: File?)
+    // Hapus data hiburan berdasarkan ID
     suspend fun deleteEntri(id: Int)
+    // Pencarian hiburan berdasarkan userId, query judul, dan genre
     suspend fun searchEntri(userId: Int, query: String?, genre: String?): Response<EntriResponse>
 }
 
+
+// Repository ini mengimplementasikan EntriRepository dan menggunakan ApiService (Retrofit) sebagai sumber data
 class NetworkEntriRepository(
     private val apiService: ApiService
 ) : EntriRepository {
-
+    // Konversi setiap field teks menjadi RequestBody
     override suspend fun insertEntri(entriHiburan: EntriHiburan, imageFile: File?) {
         val userIdRB = entriHiburan.userId.toString().toRequestBody("text/plain".toMediaTypeOrNull())
         val titleRB = entriHiburan.title.toRequestBody("text/plain".toMediaTypeOrNull())
@@ -96,7 +104,7 @@ class NetworkEntriRepository(
             null
         }
 
-        // 3. Cek apakah ada gambar baru yang diupload
+        // 3. untuk Cek apakah ada gambar baru yang diupload
         val photoPart = if (imageFile != null) {
             val requestFile = imageFile.asRequestBody("image/jpeg".toMediaTypeOrNull())
             MultipartBody.Part.createFormData("photo", imageFile.name, requestFile)

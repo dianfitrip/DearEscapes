@@ -33,7 +33,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.myapplication.data.model.EntriHiburan
-// Import Warna
 import com.example.myapplication.ui.theme.*
 import com.example.myapplication.ui.viewmodel.DetailUiState
 import com.example.myapplication.ui.viewmodel.DetailViewModel
@@ -56,7 +55,7 @@ fun HalamanDetail(
     val uiState = viewModel.uiState
     val currentEntry = (uiState as? DetailUiState.Success)?.entri
 
-    // --- DIALOG HAPUS YANG LUCU ---
+    //DIALOG HAPUS
     if (showDeleteDialog && currentEntry != null) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
@@ -109,7 +108,7 @@ fun HalamanDetail(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { navigateToEdit(id) },
-                shape = RoundedCornerShape(16.dp), // Squircle shape
+                shape = RoundedCornerShape(16.dp),
                 containerColor = CottonCandyBlue,
                 contentColor = Color.White,
                 elevation = FloatingActionButtonDefaults.elevation(8.dp)
@@ -167,11 +166,11 @@ fun DetailContent(
             .fillMaxSize()
             .verticalScroll(scrollState)
     ) {
-        // --- HEADER GAMBAR BESAR ---
+        //HEADER GAMBAR BESAR
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(420.dp) // Lebih tinggi sedikit
+                .height(420.dp)
         ) {
             val imageUrl = when {
                 entri.photo.isNullOrEmpty() -> ""
@@ -235,7 +234,7 @@ fun DetailContent(
             }
         }
 
-        // --- KARTU KONTEN (Melengkung ke atas) ---
+        //KARTU KONTEN (Melengkung ke atas)
         Column(
             modifier = Modifier
                 .offset(y = (-60).dp) // Overlap ke atas gambar
@@ -257,7 +256,7 @@ fun DetailContent(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // TAG KATEGORI & STATUS (Pill Shape)
+            // TAG KATEGORI & STATUS
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 CandyTag(
                     text = entri.category.uppercase(),
@@ -286,7 +285,7 @@ fun DetailContent(
             Text(
                 text = entri.title,
                 fontSize = 28.sp,
-                fontWeight = FontWeight.Black, // Lebih tebal
+                fontWeight = FontWeight.Black,
                 color = Color.Black,
                 lineHeight = 36.sp,
                 letterSpacing = (-0.5).sp
@@ -294,12 +293,12 @@ fun DetailContent(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // INFO BAR (Kotak Informasi Lucu)
+            // INFO BAR
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(16.dp))
-                    .background(SoftBlueInput) // Warna biru sangat muda
+                    .background(SoftBlueInput)
                     .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceAround
@@ -347,13 +346,12 @@ fun DetailContent(
                 textAlign = TextAlign.Justify
             )
 
-            // Ruang kosong di bawah agar tombol FAB tidak menutupi teks terakhir
             Spacer(modifier = Modifier.height(100.dp))
         }
     }
 }
 
-// Komponen Tag yang Lebih Lucu
+// Komponen Tag
 @Composable
 fun CandyTag(text: String, bgColor: Color, textColor: Color) {
     Box(

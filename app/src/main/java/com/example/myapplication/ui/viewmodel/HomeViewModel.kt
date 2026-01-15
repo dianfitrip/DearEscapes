@@ -8,10 +8,10 @@ import androidx.lifecycle.viewModelScope
 import com.example.myapplication.data.model.EntriHiburan
 import com.example.myapplication.data.repository.EntriRepository
 import com.example.myapplication.data.repository.UserPreferences
-import kotlinx.coroutines.flow.SharingStarted // Import untuk stateIn
-import kotlinx.coroutines.flow.StateFlow      // Import untuk StateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.stateIn        // Import untuk stateIn
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.io.IOException
 
@@ -29,16 +29,14 @@ class HomeViewModel(
     var uiState: HomeUiState by mutableStateOf(HomeUiState.Loading)
         private set
 
-    // --- TAMBAHAN MODIFIKASI DIMULAI ---
     // Mengambil Username secara reactive (Live Update)
     // Variabel ini akan dipakai di UI (HalamanHome) untuk menampilkan "Halo, [Nama]"
     val currentUsername: StateFlow<String> = userPreferences.getUsername
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
-            initialValue = "User" // Default jika loading/kosong
+            initialValue = "User"
         )
-    // --- TAMBAHAN MODIFIKASI BERAKHIR ---
 
     init {
         getEntries()
@@ -60,7 +58,6 @@ class HomeViewModel(
                     val filteredData = if (currentUserId != null) {
                         allData.filter { it.userId == currentUserId }
                     } else {
-                        // Jika tidak ada user login (error case), kosongkan list
                         emptyList()
                     }
 

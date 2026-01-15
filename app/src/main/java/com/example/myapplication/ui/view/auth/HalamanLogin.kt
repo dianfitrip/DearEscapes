@@ -61,7 +61,7 @@ fun HalamanLogin(
         }
     }
 
-    // --- LAYOUT UTAMA ---
+    //LAYOUT UTAMA
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -75,12 +75,12 @@ fun HalamanLogin(
                 )
             )
     ) {
-        // --- DEKORASI BACKGROUND ---
+        //DEKORASI BACKGROUND
         DecorationItem(icon = Icons.Filled.Favorite, color = SoftBlueInput, size = 100.dp, modifier = Modifier.align(Alignment.TopStart).offset(x = (-20).dp, y = 40.dp))
         DecorationItem(icon = Icons.Filled.Favorite, color = SoftBlueInput.copy(alpha = 0.6f), size = 80.dp, modifier = Modifier.align(Alignment.TopEnd).offset(x = 30.dp, y = 100.dp))
         DecorationItem(icon = Icons.Filled.Star, color = CottonCandyBlue.copy(alpha = 0.3f), size = 40.dp, modifier = Modifier.align(Alignment.CenterStart).offset(x = 20.dp, y = (-150).dp))
 
-        // --- KARTU FORM LOGIN ---
+        //KARTU FORM LOGIN
         Column(
             modifier = Modifier
                 .align(Alignment.Center)
@@ -112,7 +112,7 @@ fun HalamanLogin(
                         modifier = Modifier.padding(bottom = 24.dp)
                     )
 
-                    // --- INPUT EMAIL ---
+                    //INPUT EMAIL
                     OutlinedTextField(
                         value = email,
                         onValueChange = {
@@ -139,11 +139,11 @@ fun HalamanLogin(
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    // --- INPUT PASSWORD (MAX 6 KARAKTER) ---
+                    //INPUT PASSWORD (6 KARAKTER)
                     OutlinedTextField(
                         value = password,
                         onValueChange = {
-                            // [VALIDASI] Batasi input maksimal 6 karakter
+                            //VALIDASI Batasi input maksimal 6 karakter
                             if (it.length <= 6) {
                                 password = it
                                 isPasswordError = false
@@ -176,7 +176,7 @@ fun HalamanLogin(
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    // --- TOMBOL MASUK (TANPA ICON) ---
+                    //TOMBOL MASUK
                     Button(
                         onClick = {
                             var valid = true
@@ -227,7 +227,7 @@ fun HalamanLogin(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Link Daftar
+                    // Link Daftar regis
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text("Belum punya akun?", fontSize = 12.sp, color = Color.Gray)
                         TextButton(onClick = onRegisterClick) {
@@ -243,7 +243,7 @@ fun HalamanLogin(
     }
 }
 
-// Helper Warna Input
+//Mengatur warna dan gaya OutlinedTextField pada halaman login, termasuk kondisi normal dan error.
 @Composable
 fun cuteInputColorsLogin(isError: Boolean = false) = OutlinedTextFieldDefaults.colors(
     focusedBorderColor = if (isError) ColorDropped else CottonCandyBlue,

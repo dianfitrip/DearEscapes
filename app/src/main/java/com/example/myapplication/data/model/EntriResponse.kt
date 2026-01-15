@@ -9,6 +9,6 @@ data class EntriResponse(
     // Menangkap pesan (jika ada)
     @SerializedName("message") val message: String? = null,
 
-    // Menangkap list data hiburan (ini yang paling penting)
+    // Menangkap list data hiburan
     @SerializedName("data") val data: List<EntriHiburan>
 )

@@ -1,6 +1,6 @@
 package com.example.myapplication.ui.viewmodel
 
-import android.util.Log // 1. Import Library Log
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -21,7 +21,7 @@ class DetailViewModel(private val repository: EntriRepository) : ViewModel() {
     var uiState: DetailUiState by mutableStateOf(DetailUiState.Loading)
         private set
 
-    // Fungsi 1: Mengambil Data Detail (Existing)
+    //1: Mengambil Data Detail (Existing)
     fun getDetailHiburan(id: Int) {
         viewModelScope.launch {
             uiState = DetailUiState.Loading
@@ -41,7 +41,7 @@ class DetailViewModel(private val repository: EntriRepository) : ViewModel() {
     fun deleteEntri(id: Int, onSuccess: () -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {
             try {
-                // 2. Log Debug: Untuk memastikan ID terkirim
+                //Log Debug: Untuk memastikan ID terkirim
                 Log.d("DetailViewModel", "Mencoba menghapus data dengan ID: $id")
 
                 // Memanggil fungsi delete di repository
@@ -50,7 +50,7 @@ class DetailViewModel(private val repository: EntriRepository) : ViewModel() {
                 // Jika tidak ada error (try berhasil), panggil callback sukses
                 onSuccess()
             } catch (e: Exception) {
-                // 3. Log Error: Untuk melihat pesan error di Logcat
+                //Untuk melihat pesan error di Logcat
                 Log.e("DetailViewModel", "Gagal menghapus: ${e.message}")
 
                 // Panggil callback error dengan pesan

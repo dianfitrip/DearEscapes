@@ -62,8 +62,7 @@ fun HalamanEditProfile(
     var showDialog by remember { mutableStateOf(false) }
     var passwordText by remember { mutableStateOf(state.password) }
 
-    /* ================= EFFECTS ================= */
-
+    //menampilkan pesan sukses atau error melalui Toast serta menyinkronkan perubahan state ViewModel ke tampilan UI.
     LaunchedEffect(state.successMessage) {
         state.successMessage?.let {
             Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
@@ -79,8 +78,6 @@ fun HalamanEditProfile(
     LaunchedEffect(state.password) {
         passwordText = state.password
     }
-
-    /* ================= ACTIONS ================= */
 
     fun onSaveClicked() {
         val isValid =
@@ -142,7 +139,7 @@ fun HalamanEditProfile(
         )
     }
 
-    /* ================= UI ================= */
+
 
     Scaffold(
         topBar = {
@@ -179,8 +176,7 @@ fun HalamanEditProfile(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            /* ===== Nama ===== */
-
+            //nama
             OutlinedTextField(
                 value = state.username,
                 onValueChange = {
@@ -200,8 +196,7 @@ fun HalamanEditProfile(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            /* ===== Email ===== */
-
+            //email
             OutlinedTextField(
                 value = state.email,
                 onValueChange = {
@@ -221,8 +216,7 @@ fun HalamanEditProfile(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            /* ===== Password ===== */
-
+            //password
             OutlinedTextField(
                 value = passwordText,
                 onValueChange = {
@@ -264,8 +258,7 @@ fun HalamanEditProfile(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            /* ===== Button ===== */
-
+            //button
             Button(
                 onClick = { onSaveClicked() },
                 enabled = !state.isLoading,

@@ -50,17 +50,13 @@ class ProfileViewModel(
         fetchUserProfile()
     }
 
-    /**
-     * Fungsi untuk mengambil data entri milik user dan menghitung statistiknya.
-     * [MODIFIKASI] Ubah menjadi PUBLIC (tanpa 'private') agar bisa dipanggil dari UI
-     */
+    //mengambil data entri untuk menghitung stat
     fun fetchUserProfile() {
         viewModelScope.launch {
             try {
                 // 1. Ambil User ID dari sesi login (DataStore)
                 val userId = userPreferences.getUserId.first()
 
-                // Pastikan userId valid
                 if (userId != null && userId != 0) {
 
                     // 2. Panggil API searchEntri (Menggunakan endpoint yang sudah support filter by ID)
@@ -97,9 +93,7 @@ class ProfileViewModel(
         }
     }
 
-    /**
-     * Fungsi Logout
-     */
+    //logout
     fun logout() {
         viewModelScope.launch {
             userPreferences.clearSession()

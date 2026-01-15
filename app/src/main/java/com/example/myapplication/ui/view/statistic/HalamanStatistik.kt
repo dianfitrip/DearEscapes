@@ -125,13 +125,13 @@ fun HalamanStatistik(
                             }
                         }
 
-                        // 3. GRAFIK GENRE (Bar Chart) - [DIMODIFIKASI]
+                        // 3. GRAFIK GENRE (Bar Chart)
                         item {
                             ChartCard(title = "Genre Terfavorit") {
                                 Column {
                                     // Urutkan data berdasarkan value (jumlah) dari besar ke kecil
                                     data.genreDistribution.entries
-                                        .sortedByDescending { it.value } // <-- PERUBAHAN DISINI
+                                        .sortedByDescending { it.value }
                                         .take(4) // Ambil 4 teratas setelah diurutkan
                                         .forEachIndexed { index, entry ->
                                             val color = PastelColors[index % PastelColors.size]
@@ -167,7 +167,7 @@ fun HalamanStatistik(
     }
 }
 
-// --- KOMPONEN CHART CUSTOM ---
+//menampilkan grafik aktivitas sederhana berbentuk garis putus-putus yang membandingkan jumlah menonton (watchCount) dan membaca (readCount)
 
 @Composable
 fun ActivityLineChart(watchCount: Int, readCount: Int) {
@@ -239,7 +239,7 @@ fun ActivityLineChart(watchCount: Int, readCount: Int) {
     }
 }
 
-// --- KOMPONEN PENDUKUNG ---
+//menampilkan kartu ringkasan informasi
 
 @Composable
 fun SummaryCard(
@@ -275,6 +275,8 @@ fun SummaryCard(
     }
 }
 
+
+//wadah kartu umum untuk menampilkan berbagai jenis grafik atau visualisasi data
 @Composable
 fun ChartCard(title: String, content: @Composable () -> Unit) {
     Card(

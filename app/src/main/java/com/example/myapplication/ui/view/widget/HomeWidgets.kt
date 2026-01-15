@@ -31,7 +31,7 @@ import com.example.myapplication.data.model.EntriHiburan
 import com.example.myapplication.ui.theme.CottonCandyBlue
 import kotlin.math.abs
 
-// --- 1. BOTTOM NAVIGATION BAR ---
+//BOTTOM NAVIGATION BAR
 @Composable
 fun CottonCandyBottomBar(
     currentMenu: String,
@@ -69,7 +69,7 @@ fun CottonCandyBottomBar(
     }
 }
 
-// --- 2. HEADER HOME ---
+//HEADER HOME
 @Composable
 fun HomeHeader(username: String) {
     val userIcon = getCuteAvatar(username)
@@ -131,7 +131,7 @@ fun HomeHeader(username: String) {
     }
 }
 
-// --- 3. POSTER CARD ---
+//POSTER CARD
 @Composable
 fun PosterCard(item: EntriHiburan, onClick: () -> Unit) {
     Card(
@@ -229,7 +229,7 @@ fun PosterCard(item: EntriHiburan, onClick: () -> Unit) {
     }
 }
 
-// Logic Helper
+// random ava
 @Composable
 fun getCuteAvatar(username: String): ImageVector {
     val icons = listOf(

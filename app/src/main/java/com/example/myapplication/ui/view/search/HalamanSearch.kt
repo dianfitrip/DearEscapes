@@ -38,7 +38,7 @@ import com.example.myapplication.ui.viewmodel.PenyediaViewModel
 import com.example.myapplication.ui.viewmodel.SearchUiState
 import com.example.myapplication.ui.viewmodel.SearchViewModel
 
-// Daftar Genre Master
+// Daftar Genre
 val masterGenreList = listOf(
     "Action", "Adventure", "Biography", "Classic", "Comedy", "Coming of Age",
     "Contemporary", "Crime", "Cultivation", "Cyberpunk", "Dark Fantasy", "Demons",
@@ -79,24 +79,22 @@ fun HalamanSearch(
                 .fillMaxSize()
                 .padding(top = 24.dp, start = 20.dp, end = 20.dp)
         ) {
-            // --- HEADER ---
+            //HEADER
             Text("Cari Hiburanmu", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = CottonCandyBlue)
             Text("Ketik judul atau gunakan filter", fontSize = 14.sp, color = Color.Gray)
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // --- SEARCH BAR UTAMA + FILTER BUTTON ---
+            //SEARCH BAR UTAMA + FILTER BUTTON
             Row(verticalAlignment = Alignment.CenterVertically) {
                 // 1. Search Bar (Judul)
                 OutlinedTextField(
                     value = viewModel.searchQuery,
-                    // PERBAIKAN 1: Menggunakan fungsi onSearchQueryChange
                     onValueChange = { viewModel.onSearchQueryChange(it) },
                     placeholder = { Text("Cari judul...", color = Color.LightGray) },
                     leadingIcon = { Icon(Icons.Default.Search, null, tint = CottonCandyBlue) },
                     trailingIcon = {
                         if (viewModel.searchQuery.isNotEmpty()) {
-                            // PERBAIKAN 2: Reset query menggunakan fungsi yang benar
                             IconButton(onClick = { viewModel.onSearchQueryChange("") }) {
                                 Icon(Icons.Default.Close, null, tint = Color.Gray)
                             }
@@ -124,7 +122,7 @@ fun HalamanSearch(
 
                 Spacer(modifier = Modifier.width(12.dp))
 
-                // 2. TOMBOL FILTER (Membuka Bottom Sheet)
+                //TOMBOL FILTER (Membuka Bottom Sheet)
                 val isFilterActive = viewModel.selectedGenre != null
                 Box(
                     modifier = Modifier
@@ -143,7 +141,7 @@ fun HalamanSearch(
                 }
             }
 
-            // --- INDIKATOR FILTER AKTIF ---
+            //INDIKATOR FILTER AKTIF
             if (viewModel.selectedGenre != null) {
                 Spacer(modifier = Modifier.height(12.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -164,7 +162,7 @@ fun HalamanSearch(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // --- HASIL PENCARIAN ---
+            //HASIL PENCARIAN
             Box(modifier = Modifier.fillMaxSize()) {
                 when (uiState) {
                     is SearchUiState.Idle -> EmptyStateContent(Icons.Default.Search, "Mulai Menjelajah", "Ketik sesuatu di atas")
@@ -187,7 +185,7 @@ fun HalamanSearch(
             }
         }
 
-        // --- BOTTOM SHEET GENRE ---
+        //BOTTOM SHEET GENRE
         if (showFilterSheet) {
             ModalBottomSheet(
                 onDismissRequest = { showFilterSheet = false },
@@ -207,10 +205,9 @@ fun HalamanSearch(
                     Text("Pilih Genre", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = CottonCandyBlue)
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // 3. Search Genre (Lokal di dalam Sheet)
+                    //search Genre
                     OutlinedTextField(
                         value = viewModel.genreSearchQuery,
-                        // PERBAIKAN 3: Menggunakan fungsi onGenreSearchQueryChange
                         onValueChange = { viewModel.onGenreSearchQueryChange(it) },
                         placeholder = { Text("Cari genre...", color = Color.Gray, fontSize = 14.sp) },
                         modifier = Modifier.fillMaxWidth(),
@@ -227,7 +224,7 @@ fun HalamanSearch(
 
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    // 4. List Genre (Filtered by local search)
+                    //List Genre (Filtered by local search)
                     val filteredGenres = masterGenreList.filter {
                         it.contains(viewModel.genreSearchQuery, ignoreCase = true)
                     }

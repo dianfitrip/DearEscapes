@@ -24,14 +24,14 @@ import retrofit2.http.Path
 
 interface ApiService {
 
-    // --- AUTH ---
+    //AUTH
     @POST("register")
     suspend fun registerUser(@Body request: RegisterRequest): Response<RegisterResponse>
 
     @POST("login")
     suspend fun loginUser(@Body request: LoginRequest): Response<LoginResponse>
 
-    // --- GET DATA ---
+    //GET DATA
     @GET("entertainments")
     suspend fun getEntertainments(): Response<EntertainmentResponse>
 
@@ -57,7 +57,7 @@ interface ApiService {
         @Query("genre") genre: String? = null
     ): Response<EntriResponse>
 
-    // --- INSERT ---
+    //INSERT
     @Multipart
     @POST("insert-entertainment")
     suspend fun insertEntertainment(
@@ -71,7 +71,7 @@ interface ApiService {
         @Part photo: MultipartBody.Part?
     ): Response<EntertainmentDetailResponse>
 
-    // --- UPDATE (DITAMBAHKAN PARAMETER photo_string) ---
+    //PARAMETER photo_string)
     @Multipart
     @PUT("update-entertainment/{id}")
     suspend fun updateEntertainment(
@@ -83,6 +83,6 @@ interface ApiService {
         @Part("status") status: RequestBody,
         @Part("rating") rating: RequestBody,
         @Part photo: MultipartBody.Part?,
-        @Part("photo_string") photoString: RequestBody? = null // PARAMETER BARU untuk foto lama
+        @Part("photo_string") photoString: RequestBody? = null // PARAMETER untuk foto lama
     ): Response<EntertainmentDetailResponse>
 }

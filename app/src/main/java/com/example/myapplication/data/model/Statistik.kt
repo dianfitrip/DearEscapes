@@ -2,12 +2,15 @@ package com.example.myapplication.data.model
 
 import kotlinx.serialization.Serializable
 
+
+// Digunakan oleh Kotlin Serialization saat parsing JSON dari API
 @Serializable
 data class StatistikResponse(
     val success: Boolean,
     val data: StatistikDataModel
 )
 
+// Data class untuk menampung detail statistik user
 @Serializable
 data class StatistikDataModel(
     val totalEntry: Int = 0,

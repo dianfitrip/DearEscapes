@@ -10,7 +10,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.data.model.EntriHiburan
 import com.example.myapplication.data.repository.EntriRepository
-import com.example.myapplication.utils.FileUtils
+import com.example.myapplication.ui.utils.FileUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -80,7 +80,7 @@ class UpdateViewModel(
                         photoUrl
                     }
 
-                    // 2. Foto dari server (URL HTTP/HTTPS) - EMOJI FIX
+                    // 2. Foto dari server (URL HTTP/HTTPS)
                     photoUrl.startsWith("http://") || photoUrl.startsWith("https://") -> {
                         Log.d("UpdateViewModel", "Foto URL server: $photoUrl")
 
@@ -172,7 +172,7 @@ class UpdateViewModel(
 
                     Log.d("UpdateViewModel", "Foto tersimpan di cache: ${cacheFile.absolutePath}")
 
-                    // Untuk Android, gunakan FileProvider URI
+                    // Untuk Android gunakan FileProvider URI
                     Uri.fromFile(cacheFile)
                 } else {
                     throw Exception("HTTP ${connection.responseCode}: ${connection.responseMessage}")
@@ -249,7 +249,7 @@ class UpdateViewModel(
                         imageFile = null
                     }
 
-                    // 6. Format lainnya (pertahankan apa adanya)
+                    // 6. Format lainnya
                     else -> {
                         Log.d("UpdateViewModel", "Foto format lain: ${detail.photo}")
                         photoStringForServer = detail.photo

@@ -75,9 +75,9 @@ fun HalamanEntry(
     val context = LocalContext.current
     val scrollState = rememberScrollState()
 
-    // [STATE DIALOG PINDAH KE SINI]
     var showConfirmDialog by remember { mutableStateOf(false) }
 
+    //kerangka halaman “Tambah Hiburan” yang mengatur AppBar, layout form, dan validasi sebelum data disimpan
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -114,7 +114,6 @@ fun HalamanEntry(
                         entryUiState = viewModel.uiState,
                         onValueChange = viewModel::updateUiState,
                         onSaveClick = {
-                            // Cek Validasi di SINI (Parent), bukan di EntryBody
                             if (viewModel.uiState.isEntryValid) {
                                 showConfirmDialog = true
                             } else {
@@ -127,7 +126,7 @@ fun HalamanEntry(
         }
     }
 
-    // [DIALOG KONFIRMASI SIMPAN - KHUSUS HALAMAN ENTRY]
+    //DIALOG KONFIRMASI SIMPAN - KHUSUS HALAMAN ENTRY
     if (showConfirmDialog) {
         AlertDialog(
             onDismissRequest = { showConfirmDialog = false },
@@ -158,7 +157,7 @@ fun EntryBody(
     onSaveClick: () -> Unit
 ) {
     val detail = entryUiState.detailEntri
-    var showGenreDialog by remember { mutableStateOf(false) } // Dialog Genre tetap di sini karena bagian dari input form
+    var showGenreDialog by remember { mutableStateOf(false) }
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
@@ -252,8 +251,7 @@ fun EntryBody(
 
     Spacer(modifier = Modifier.height(16.dp))
 
-    // [TOMBOL SIMPAN YANG BERSIH]
-    // Tidak ada logika dialog di sini, hanya memicu callback onSaveClick
+    //TOMBOL SIMPAN
     Button(
         onClick = onSaveClick,
         enabled = true,
@@ -265,8 +263,7 @@ fun EntryBody(
     }
 }
 
-// --- KOMPONEN PENDUKUNG (GenreSelectionDialog, ImagePickerBox, dll) TETAP SAMA ---
-// Sertakan di bawah kode ini jika copy paste full file
+//KOMPONEN PENDUKUNG (GenreSelectionDialog, ImagePickerBox, dll)
 @Composable
 fun GenreSelectionDialog(initialSelection: String, onDismiss: () -> Unit, onSave: (String) -> Unit) {
     val initialList = initialSelection.split(",").map { it.trim() }.filter { it.isNotEmpty() }.toSet()
@@ -297,6 +294,7 @@ fun GenreSelectionDialog(initialSelection: String, onDismiss: () -> Unit, onSave
     }
 }
 
+//ImagePickerBox berfungsi sebagai komponen antarmuka untuk memilih, menampilkan, dan mengganti foto cover hiburan
 @Composable
 fun ImagePickerBox(imageUri: Uri?, onClick: () -> Unit) {
     Box(modifier = Modifier.fillMaxWidth().height(180.dp).clip(RoundedCornerShape(16.dp)).background(Color(0xFFF0F8FF)).border(BorderStroke(2.dp, CottonCandyBlue.copy(alpha = 0.5f)), RoundedCornerShape(16.dp)).clickable { onClick() }, contentAlignment = Alignment.Center) {
@@ -312,12 +310,14 @@ fun ImagePickerBox(imageUri: Uri?, onClick: () -> Unit) {
     }
 }
 
+//Menyediakan input teks dengan tampilan konsisten dan ramah pengguna
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CuteTextField(value: String, onValueChange: (String) -> Unit, label: String, icon: ImageVector? = null, singleLine: Boolean = true) {
     OutlinedTextField(value = value, onValueChange = onValueChange, label = { Text(label, color = Color.Gray) }, leadingIcon = if (icon != null) { { Icon(icon, null, tint = CottonCandyBlue) } } else null, modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(16.dp), singleLine = singleLine, colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = CottonCandyBlue, unfocusedBorderColor = CottonCandyBlue.copy(alpha = 0.4f), cursorColor = CottonCandyBlue, focusedContainerColor = Color(0xFFF0F8FF), unfocusedContainerColor = Color.Transparent))
 }
 
+//Menampilkan chip pilihan kategori atau status yang dapat dipilih oleh pengguna.
 @Composable
 fun CategoryChip(text: String, icon: ImageVector? = null, selected: Boolean, onSelected: () -> Unit) {
     Surface(color = if (selected) CottonCandyBlue else Color.White, shape = RoundedCornerShape(50), border = BorderStroke(1.dp, if (selected) CottonCandyBlue else Color.LightGray), modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(50)).clickable { onSelected() }) {
@@ -328,6 +328,7 @@ fun CategoryChip(text: String, icon: ImageVector? = null, selected: Boolean, onS
     }
 }
 
+//CategoryChip berfungsi sebagai komponen untuk menentukan kategori atau status
 @Composable
 fun RatingInput(rating: Double, onRatingChanged: (Double) -> Unit) {
     Row(verticalAlignment = Alignment.CenterVertically) {

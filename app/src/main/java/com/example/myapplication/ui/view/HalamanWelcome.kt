@@ -26,7 +26,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.R
 import com.example.myapplication.ui.navigation.DestinasiNavigasi
-// [PENTING] Import file Color.kt
 import com.example.myapplication.ui.theme.CottonCandyBlue
 import com.example.myapplication.ui.theme.CottonCandyPink
 import com.example.myapplication.ui.theme.SoftBlueInput
@@ -53,14 +52,13 @@ fun HalamanWelcome(
                 )
             )
     ) {
-        // --- DEKORASI BACKGROUND (Awan & Bintang Lucu) ---
-        // Menggunakan SoftBlueInput (pengganti PaleBlue) dan CottonCandyBlue (pengganti SoftBlue)
+        // DEKORASI BACKGROUND (Awan & Bintang)
         DecorationItem(icon = Icons.Rounded.Cloud, color = SoftBlueInput, size = 120.dp, modifier = Modifier.align(Alignment.TopStart).offset(x = (-30).dp, y = 50.dp))
         DecorationItem(icon = Icons.Rounded.Cloud, color = SoftBlueInput, size = 150.dp, modifier = Modifier.align(Alignment.TopEnd).offset(x = 40.dp, y = 100.dp))
         DecorationItem(icon = Icons.Rounded.Star, color = CottonCandyBlue.copy(alpha = 0.4f), size = 40.dp, modifier = Modifier.align(Alignment.TopCenter).offset(y = 150.dp))
         DecorationItem(icon = Icons.Rounded.AutoAwesome, color = CottonCandyPink, size = 30.dp, modifier = Modifier.align(Alignment.CenterStart).offset(x = 40.dp, y = (-100).dp))
 
-        // --- KONTEN UTAMA ---
+        //KONTEN UTAMA
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -106,7 +104,7 @@ fun HalamanWelcome(
                 modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
             ) {
                 Text(
-                    text = "Catat momen seru, simpan kenangan,\ndan temukan dunia hiburanmu disini! ✨",
+                    text = "Catat momen seru, simpan kenangan,\ndan temukan dunia hiburanmu disini!",
                     fontSize = 16.sp,
                     color = Color.Gray,
                     textAlign = TextAlign.Center,

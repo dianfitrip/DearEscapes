@@ -17,7 +17,7 @@ import com.example.myapplication.ui.view.entry.HalamanUpdate
 import com.example.myapplication.ui.view.main.HalamanHome
 import com.example.myapplication.ui.view.profile.HalamanEditProfile
 
-// --- 1. DEFINISI DESTINASI ---
+//DEFINISI DESTINASI
 
 interface DestinasiNavigasi {
     val route: String
@@ -68,9 +68,8 @@ object DestinasiEditProfil : DestinasiNavigasi {
     override val titleRes = "Edit Profil"
 }
 
-// Catatan: DestinasiProfil dihapus karena sekarang dimuat di dalam HalamanHome (State-based)
 
-// --- 3. PENGELOLA NAVIGASI (NAVGRAPH) ---
+//PENGELOLA NAVIGASI (NAVGRAPH)
 
 @Composable
 fun NavGraph(
@@ -82,7 +81,7 @@ fun NavGraph(
         startDestination = DestinasiWelcome.route,
         modifier = modifier
     ) {
-        // --- HALAMAN WELCOME ---
+        //HALAMAN WELCOME
         composable(route = DestinasiWelcome.route) {
             HalamanWelcome(
                 onNextClick = {
@@ -91,7 +90,7 @@ fun NavGraph(
             )
         }
 
-        // --- HALAMAN REGISTER ---
+        //HALAMAN REGISTER
         composable(route = DestinasiRegister.route) {
             HalamanRegister(
                 onLoginClick = {
@@ -100,7 +99,7 @@ fun NavGraph(
             )
         }
 
-        // --- HALAMAN LOGIN ---
+        //HALAMAN LOGIN
         composable(route = DestinasiLogin.route) {
             HalamanLogin(
                 onRegisterClick = {
@@ -114,7 +113,7 @@ fun NavGraph(
             )
         }
 
-        // --- HALAMAN HOME ---
+        //HALAMAN HOME
         composable(route = DestinasiHome.route) {
             HalamanHome(
                 onDetailClick = { id ->
@@ -125,17 +124,17 @@ fun NavGraph(
                 },
                 onLogout = {
                     navController.navigate(DestinasiLogin.route) {
-                        popUpTo(0) { inclusive = true } // Hapus semua backstack
+                        popUpTo(0) { inclusive = true }
                     }
                 },
-                // [MODIFIKASI PENTING]: Callback untuk navigasi ke Edit Profil
+                //Callback untuk navigasi ke Edit Profil
                 onEditProfileClick = {
                     navController.navigate(DestinasiEditProfil.route)
                 }
             )
         }
 
-        // --- HALAMAN ENTRY ---
+        //HALAMAN ENTRY
         composable(route = DestinasiEntry.route) {
             HalamanEntry(
                 navigateBack = {
@@ -144,7 +143,7 @@ fun NavGraph(
             )
         }
 
-        // --- HALAMAN DETAIL ---
+        //HALAMAN DETAIL
         composable(
             route = DestinasiDetail.routeWithArg,
             arguments = listOf(navArgument(DestinasiDetail.idArg) {
@@ -162,7 +161,7 @@ fun NavGraph(
             )
         }
 
-        // --- HALAMAN UPDATE / EDIT ---
+        //HALAMAN UPDATE / EDIT
         composable(
             route = DestinasiUpdate.routeWithArg,
             arguments = listOf(navArgument(DestinasiUpdate.idArg) {
@@ -176,7 +175,7 @@ fun NavGraph(
             )
         }
 
-        // --- [TAMBAHAN BARU] HALAMAN EDIT PROFIL ---
+        //HALAMAN EDIT PROFIL
         composable(DestinasiEditProfil.route) {
             HalamanEditProfile(
                 navigateBack = {
